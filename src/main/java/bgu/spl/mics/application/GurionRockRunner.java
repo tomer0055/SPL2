@@ -7,6 +7,7 @@ package bgu.spl.mics.application;
  * services, objects, and configurations.
  * </p>
  */
+
 public class GurionRockRunner {
 
     /**
