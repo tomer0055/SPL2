@@ -39,21 +39,23 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void sendBroadcast(Broadcast b) {
+	public synchronized  void sendBroadcast(Broadcast b) {
 		ConcurrentLinkedQueue<MicroService> microServices = broadcastMap.get(b.getClass());
 		for(MicroService m : microServices){
 			microServiceMap.get(m).add(b);
 		}
+		notifyAll();
 	}
 
 	
 	@Override
-	public <T> Future<T> sendEvent(Event<T> e) {
+	public synchronized <T> Future<T> sendEvent(Event<T> e) {
 		Future<T> future = new Future<>();
 		events.put(e,future);
 		ConcurrentLinkedQueue<MicroService> microServices = eventMap.get(e.getClass());
 		MicroService m = microServices.poll();
 		microServiceMap.get(m).add(e);
+		notifyAll();
 		microServices.add(m);
 		return future;
 	}
@@ -75,7 +77,10 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public Message awaitMessage(MicroService m) throws InterruptedException {
+	public synchronized Message awaitMessage(MicroService m) throws InterruptedException {
+		while(microServiceMap.get(m).isEmpty()){
+			wait();
+		}
 		return microServiceMap.get(m).poll();
 	}
 }
