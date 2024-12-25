@@ -6,8 +6,13 @@ package bgu.spl.mics.application.objects;
  * Implements the Singleton pattern to ensure a single instance of FusionSlam exists.
  */
 public class FusionSlam {
-    // Singleton instance holder
+    
     private static class FusionSlamHolder {
-        // TODO: Implement singleton instance logic.
+        public static FusionSlam instance = new FusionSlam();
+    }
+    private FusionSlam() {
+    }
+    public static FusionSlam getInstance() {
+        return FusionSlamHolder.instance;
     }
 }

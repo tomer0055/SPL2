@@ -24,8 +24,7 @@ public abstract class MicroService implements Runnable {
 
     private boolean terminated = false;
     private final String name;
-    MessageBusImpl messageBus;
-    private Callback c;
+    private final  MessageBusImpl messageBus;
     private final ConcurrentHashMap<Class<? extends Message>, Callback<?>> callbacks;
 
 
@@ -161,12 +160,9 @@ public abstract class MicroService implements Runnable {
         while (!terminated) {
             try {
                 Message m = messageBus.awaitMessage(this);
-                if(m == null) {
-                    terminate();
-                    break;
-                }
-                Callback c = callbacks.get(m.getClass());
-                c.call(m);
+                Callback callback = callbacks.get(m.getClass());
+                callback.call(m);
+                //todo add a way to terminate the microservice and unregister it from the message bus
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
         }
