@@ -12,7 +12,7 @@
     <property name="user.country" value="IL"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk-23.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire/surefirebooter-20241226142931702_3.jar /Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire 2024-12-26T14-29-31_675-jvmRun1 surefire-20241226142931702_1tmp surefire_0-20241226142931702_2tmp"/>
+    <property name="sun.java.command" value="/Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire/surefirebooter-20241226145042385_3.jar /Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire 2024-12-26T14-50-42_358-jvmRun1 surefire-20241226145042385_1tmp surefire_0-20241226145042385_2tmp"/>
     <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="jdk.debug" value="release"/>
     <property name="test" value="LidarDataBaseTest#testLidarDataBaseInstance"/>
@@ -30,7 +30,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="apple.awt.application.name" value="ForkedBooter"/>
-    <property name="surefire.real.class.path" value="/Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire/surefirebooter-20241226142931702_3.jar"/>
+    <property name="surefire.real.class.path" value="/Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire/surefirebooter-20241226145042385_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.runtime.version" value="23.0.1+11-39"/>
@@ -60,19 +60,19 @@
     <property name="java.class.version" value="67.0"/>
   </properties>
   <testcase name="testLidarDataBaseInstance" classname="LidarDataBaseTest" time="0.022">
-    <system-out><![CDATA[id: Wall_1 time: 2 coordinates: [[0.1176, 3.6969, 0.104], [0.11362, 3.6039, 0.104]]
-id: Wall_3 time: 4 coordinates: [[3.0451, -0.38171, 0.104], [3.0637, -0.17392, 0.104]]
-id: Chair_Base_1 time: 4 coordinates: [[1.9834, -1.0048, 0.104], [1.7235, -0.71784, 0.104]]
-id: Wall_4 time: 6 coordinates: [[-2.5367, -3.3341, 0.104], [1.7926, -3.6804, 0.104]]
-id: Circular_Base_1 time: 6 coordinates: [[0.73042, -1.1781, 0.104], [0.49003, -1.1433, 0.104]]
-id: Door time: 7 coordinates: [[0.5, -2.1, 0.104], [0.8, -2.3, 0.104]]
-id: Wall_5 time: 8 coordinates: [[-3.6427, -1.071, 0.104], [-3.7119, -1.0673, 0.104]]
-id: Wall_1 time: 10 coordinates: [[0.5, 3.9, 0.104], [0.2, 3.7, 0.104]]
-id: Wall_3 time: 12 coordinates: [[3.1, -0.4, 0.104], [3.2, -0.2, 0.104]]
-id: Wall_5 time: 14 coordinates: [[-3.6, -1.0, 0.104], [-3.7, -1.1, 0.104]]
-id: Wall_4 time: 16 coordinates: [[-2.5, -3.3, 0.104], [1.8, -3.6, 0.104]]
-id: Chair_Base_1 time: 18 coordinates: [[1.9, -1.0, 0.104], [1.7, -0.7, 0.104]]
-id: Circular_Base_1 time: 20 coordinates: [[0.6, -0.9, 0.104], [0.3, -1.2, 0.104]]
+    <system-out><![CDATA[time: 2 id: Wall_1 points: [[0.1176, 3.6969, 0.104], [0.11362, 3.6039, 0.104]]
+time: 4 id: Wall_3 points: [[3.0451, -0.38171, 0.104], [3.0637, -0.17392, 0.104]]
+time: 4 id: Chair_Base_1 points: [[1.9834, -1.0048, 0.104], [1.7235, -0.71784, 0.104]]
+time: 6 id: Wall_4 points: [[-2.5367, -3.3341, 0.104], [1.7926, -3.6804, 0.104]]
+time: 6 id: Circular_Base_1 points: [[0.73042, -1.1781, 0.104], [0.49003, -1.1433, 0.104]]
+time: 7 id: Door points: [[0.5, -2.1, 0.104], [0.8, -2.3, 0.104]]
+time: 8 id: Wall_5 points: [[-3.6427, -1.071, 0.104], [-3.7119, -1.0673, 0.104]]
+time: 10 id: Wall_1 points: [[0.5, 3.9, 0.104], [0.2, 3.7, 0.104]]
+time: 12 id: Wall_3 points: [[3.1, -0.4, 0.104], [3.2, -0.2, 0.104]]
+time: 14 id: Wall_5 points: [[-3.6, -1.0, 0.104], [-3.7, -1.1, 0.104]]
+time: 16 id: Wall_4 points: [[-2.5, -3.3, 0.104], [1.8, -3.6, 0.104]]
+time: 18 id: Chair_Base_1 points: [[1.9, -1.0, 0.104], [1.7, -0.7, 0.104]]
+time: 20 id: Circular_Base_1 points: [[0.6, -0.9, 0.104], [0.3, -1.2, 0.104]]
 ]]></system-out>
   </testcase>
 </testsuite>
