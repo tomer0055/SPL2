@@ -128,6 +128,13 @@ public abstract class MicroService implements Runnable {
     protected final <T> void complete(Event<T> e, T result) {
         messageBus.complete(e, result);
     }
+    protected final void unregister() {
+        messageBus.unregister(this);
+    }
+    protected final void register() {
+        messageBus.register(this);
+    }
+
 
     /**
      * this method is called once when the event loop starts.
@@ -167,5 +174,6 @@ public abstract class MicroService implements Runnable {
                 Thread.currentThread().interrupt();
         }
     }
-    }
+}
+    
 }

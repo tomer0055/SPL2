@@ -17,5 +17,12 @@ public class CloudPoint {
     {
         return "x: " + x + " y: " + y;
     }
+    public double getX() {
+        return x;
+    }
+    public double getY() {
+        return y;
+    }
+    
     
 }
