@@ -3,11 +3,6 @@ import bgu.spl.mics.Broadcast;
 /**
  * A broadcast message that represents a tick of the clock.
  */
-
-
-
-
-
 public class TickBroadcast implements Broadcast {
     private int tick;
     public TickBroadcast(int tick){
@@ -16,4 +11,5 @@ public class TickBroadcast implements Broadcast {
     public int getTick(){
         return tick;
     }
+
 }
