@@ -1,8 +1,9 @@
 package bgu.spl.mics.application.services;
 
-
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
+import bgu.spl.mics.application.objects.DetectedObject;
 
 /**
  * CameraService is responsible for processing data from the camera and
@@ -18,9 +19,11 @@ public class CameraService extends MicroService {
      *
      * @param camera The Camera object that this service will use to detect objects.
      */
+    private Camera camera;
     public CameraService(Camera camera) {
-        super("Change_This_Name");
-        // TODO Implement this
+        super("Camera_"+camera.getId());
+        this.camera = camera;
+        
     }
 
     /**
@@ -30,6 +33,25 @@ public class CameraService extends MicroService {
      */
     @Override
     protected void initialize() {
+        this.register();
+        this.subscribeBroadcast(TickBroadcast.class,(t) -> {
+            //TODO Implement this
+            DetectedObject obj = this.camera.detect();
+            if( obj!=null){
+                //DetectedObjectEvent event =new DetectedObjectEvent(obj);
+                //sendEvent(event);
+            }
+            else{
+                //logger?
+            }
+            //detect objects
+            //send DetectObjectsEvent to msgBus
+            
+        }
+        );
+
+        //subscribe to DetectObjectsEvent
+        
         // TODO Implement this
     }
 }

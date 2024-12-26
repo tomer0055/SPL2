@@ -6,8 +6,8 @@ package bgu.spl.mics.application.objects;
  */
 public class DetectedObject {
 
-    private int id;
-    private String description;
+    private final int id;
+    private  String description;
     public DetectedObject(int id, String description){ 
         this.id = id;
         this.description = description;
@@ -17,6 +17,13 @@ public class DetectedObject {
     }        
     public String getDescription(){
         return description;
+    }
+    public void setDescription(String description){
+        this.description = description;
+    }
+    @Override
+    public String toString() {
+        return "id: " + id + " description: " + description;
     }
 }
 

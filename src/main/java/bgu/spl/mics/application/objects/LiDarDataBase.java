@@ -19,14 +19,15 @@ public class LiDarDataBase {
      * @return The singleton instance of LiDarDataBase.
      */
     private static LiDarDataBase instance;
-    private CloudPoint[] cloudPoints;
-    private LiDarDataBase(String filePath) {
+    private List<StampedCloudPoints> StampedCloudPoint;
+
+    private  LiDarDataBase(String filePath) {
         Gson gson = new Gson();
         try(FileReader reader = new FileReader(filePath)){
-            Type dataType = new TypeToken<List<CloudPoint>>(){}.getType();
-            cloudPoints = gson.fromJson(reader, dataType);
-            for (CloudPoint point : cloudPoints ) {
-                System.out.println(point); // print the cloud points
+            Type dataType = new TypeToken<List<StampedCloudPoints>>(){}.getType();
+            StampedCloudPoint = gson.fromJson(reader, dataType);
+            for (StampedCloudPoints point : StampedCloudPoint ) {
+                System.out.println(point); // print the tracked object
             }
         } 
         catch (IOException e) {
@@ -40,5 +41,13 @@ public class LiDarDataBase {
         }
         return instance;
             
+    }
+    public StampedCloudPoints getStampedCloudByTime(int time) {
+        for (StampedCloudPoints object : StampedCloudPoint) {
+            if (object.getTime()==time) {
+                return object;
+            }
+        }
+        return null;
     }
 }

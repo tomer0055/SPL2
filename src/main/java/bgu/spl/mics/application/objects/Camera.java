@@ -10,6 +10,7 @@ public class Camera {
     int id;
     int ferequency;
     STATUS status;
+    int tick=0;
     List <DetectedObject> detectedObjects;
     public Camera( int id, int ferequency,STATUS status) {
         this.id = id;
@@ -17,8 +18,20 @@ public class Camera {
         this.status = status;
         this.detectedObjects = new ArrayList<>();
     }
-    public void detect(){
-        //TODO Implement this
+    public DetectedObject detect(){
+        tick++;
+        DetectedObject detectedObject ;
+        if(tick%ferequency==0){
+            //find if there is an object with the same time stamp then send it!
+            detectedObject = new DetectedObject(id,"object detected");
+            detectedObjects.add(detectedObject);
+            return detectedObject;
+        }
+        return null;
+        //logger Camera id: " + id + " detected object id: " + detectedObject.getId() + " description: " + detectedObject.getDescription()
+    }
+    public String getId() {
+        return String.valueOf(id);
     }
     
 
