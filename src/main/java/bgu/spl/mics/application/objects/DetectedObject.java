@@ -6,13 +6,13 @@ package bgu.spl.mics.application.objects;
  */
 public class DetectedObject {
 
-    private final int id;
+    private final String id;
     private  String description;
-    public DetectedObject(int id, String description){ 
+    public DetectedObject(String id, String description){ 
         this.id = id;
         this.description = description;
     }
-    public int getId(){
+    public String getId(){
         return id;
     }        
     public String getDescription(){

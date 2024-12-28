@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.services;
 
+import java.util.List;
+
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
@@ -34,24 +37,18 @@ public class CameraService extends MicroService {
     @Override
     protected void initialize() {
         this.register();
-        this.subscribeBroadcast(TickBroadcast.class,(t) -> {
-            //TODO Implement this
-            DetectedObject obj = this.camera.detect();
-            if( obj!=null){
-                //DetectedObjectEvent event =new DetectedObjectEvent(obj);
-                //sendEvent(event);
-            }
-            else{
-                //logger?
-            }
-            //detect objects
-            //send DetectObjectsEvent to msgBus
+        this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast t) -> {
+            List<DetectedObject> obj = this.camera.detect();
             
-        }
-        );
+            if (obj != null) {
+                DetectObjectsEvent event = new DetectObjectsEvent(obj, camera.getTime());
+                this.sendEvent(event);
+            } else {
+                //logger? null no object detected
+            }
+        });
 
         //subscribe to DetectObjectsEvent
         
-        // TODO Implement this
     }
 }

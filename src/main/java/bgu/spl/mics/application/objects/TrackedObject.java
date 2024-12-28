@@ -30,4 +30,7 @@ public class TrackedObject {
     public int getTime() {
         return time;
     }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

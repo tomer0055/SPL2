@@ -2,6 +2,8 @@ package bgu.spl.mics.application.services;
 
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.DetectObjectsEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
 
 /**
@@ -19,9 +21,10 @@ public class LiDarService extends MicroService {
      *
      * @param liDarTracker The LiDAR tracker object that this service will use to process data.
      */
+    LiDarWorkerTracker liDarTracker;
     public LiDarService(LiDarWorkerTracker liDarTracker) {
-        super("Change_This_Name");
-        // TODO Implement this
+        super("Lidar"+liDarTracker.getId());
+        this.liDarTracker = liDarTracker;
     }
 
     /**
@@ -31,6 +34,18 @@ public class LiDarService extends MicroService {
      */
     @Override
     protected void initialize() {
-        // TODO Implement this
+        this.register();
+        this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast t) -> {
+            //TODO: implement
+
+
+            
+        });
+        this.subscribeEvent(DetectObjectsEvent.class, (event)  -> {
+            DetectObjectsEvent detectEvent = (DetectObjectsEvent) event;
+            liDarTracker.process(detectEvent.getObjects());
+         });
+        //subscribe to DetectObjectsEvent
+        //subscribe to TickBroadcast
     }
 }
