@@ -30,4 +30,10 @@ public class TrackedObject {
     public int getTime() {
         return time;
     }
+    public CloudPoint[] getCoordinates() {
+        return coordinates;
+    }
+    public String getDescription() {
+        return description;
+    }
 }
