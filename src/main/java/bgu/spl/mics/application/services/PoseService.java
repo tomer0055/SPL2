@@ -1,6 +1,10 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CrashedBroadcast;
+import bgu.spl.mics.application.messages.PoseEvent;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.GPSIMU;
 
 /**
@@ -14,9 +18,10 @@ public class PoseService extends MicroService {
      *
      * @param gpsimu The GPSIMU object that provides the robot's pose data.
      */
+    private GPSIMU gpsimu;
     public PoseService(GPSIMU gpsimu) {
-        super("Change_This_Name");
-        // TODO Implement this
+        super("PoseService");
+        this.gpsimu = gpsimu;
     }
 
     /**
@@ -25,6 +30,16 @@ public class PoseService extends MicroService {
      */
     @Override
     protected void initialize() {
-        // TODO Implement this
+        this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
+            time++;
+            PoseEvent event = new PoseEvent(gpsimu.getPose());
+            this.sendEvent(event);
+        });
+        this.subscribeBroadcast(TerminatedBroadcast.class, (TerminateBroadcast) -> {
+            this.terminate();
+        });
+        this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast) -> {
+            // TODO Implement this
+        });
     }
 }
