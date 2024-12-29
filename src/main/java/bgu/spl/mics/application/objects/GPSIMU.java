@@ -33,6 +33,6 @@ public class GPSIMU {
 
     public Pose onTick(){
         CurrentTick++;
-        return PoseList.get(CurrentTick);
+        return PoseList.get(CurrentTick-1);
     }
 }
