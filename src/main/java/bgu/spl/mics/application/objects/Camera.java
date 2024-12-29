@@ -11,11 +11,12 @@ public class Camera {
     int ferequency;
     STATUS status;
     int tick=0;
+    
     List <DetectedObject> detectedObjects;
-    public Camera( int id, int ferequency,STATUS status) {
+    public Camera( int id, int ferequency) {
         this.id = id;
         this.ferequency = ferequency;
-        this.status = status;
+        this.status = STATUS.UP;
         this.detectedObjects = new ArrayList<>();
     }
     public DetectedObject detect(){
