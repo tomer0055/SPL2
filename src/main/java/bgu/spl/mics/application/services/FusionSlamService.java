@@ -57,7 +57,9 @@ public class FusionSlamService extends MicroService {
         this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
             time++;
         });
-        this.subscribeBroadcast(CrashedBroadcast.class, null);// TODO Implement this
+        this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast) -> {
+            terminate();
+        });
         this.subscribeBroadcast(TerminatedBroadcast.class, (terminatedBroadcast) -> {
             terminate();
         });
