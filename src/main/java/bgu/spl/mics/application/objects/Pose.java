@@ -14,5 +14,6 @@ public class Pose {
         this.x = x;
         this.y = y;
         this.yaw = yaw;
+        this.time = time;
     }
 }

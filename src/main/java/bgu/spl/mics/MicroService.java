@@ -22,11 +22,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class MicroService implements Runnable {
 
-    private boolean terminated = false;
+    protected boolean terminated = false;
     private final String name;
     private final  MessageBusImpl messageBus;
     private final ConcurrentHashMap<Class<? extends Message>, Callback<?>> callbacks;
-    protected int tick;
+    protected int time;//not sure
+
 
 
     /**
@@ -34,6 +35,7 @@ public abstract class MicroService implements Runnable {
      *             does not have to be unique)
      */
     public MicroService(String name) {
+        time = 0;
         this.name = name;
         messageBus = MessageBusImpl.getInstance();
         callbacks = new ConcurrentHashMap<>();
