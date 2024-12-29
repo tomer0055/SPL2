@@ -28,5 +28,17 @@ public class StatisticalFolder {
     public void incrementLandmarks(){
         numLandmarks++;
     }
+    public int getRuntime(){
+        return runtime;
+    }
+    public int getNumDetectedObjects(){
+        return numDetectedObjects;
+    }
+    public int getNumTrackedObjects(){
+        return numTrackedObjects;
+    }
+    public int getNumLandmarks(){
+        return numLandmarks;
+    }
 }
 

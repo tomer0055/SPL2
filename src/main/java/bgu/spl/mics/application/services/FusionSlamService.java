@@ -1,6 +1,13 @@
 package bgu.spl.mics.application.services;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
@@ -10,6 +17,7 @@ import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.LandMark;
+import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
 
 /**
@@ -23,17 +31,19 @@ public class FusionSlamService extends MicroService {
 
     private FusionSlam fusionSlam;
     private int TerminatedServices;
+    private StatisticalFolder statisticalFolder;
 
     /**
      * Constructor for FusionSlamService.
      *
      * @param fusionSlam The FusionSLAM object responsible for managing the
-     * global map.
+     *                   global map.
      */
-    public FusionSlamService(FusionSlam fusionSlam) {
+    public FusionSlamService(FusionSlam fusionSlam, StatisticalFolder statisticalFolder) {
         super("FusionSlamService");
         this.fusionSlam = fusionSlam;
         this.TerminatedServices = 0;
+        this.statisticalFolder = statisticalFolder;
     }
 
     /**
@@ -63,11 +73,33 @@ public class FusionSlamService extends MicroService {
             terminate();
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (terminatedBroadcast) -> {
-            if(messageBus.getMicroServiceMap().isEmpty()){
-                //create outfile
+            if (messageBus.getMicroServiceMap().isEmpty()) {
+                // create outfile
+                Map<String, Integer> statistics = Map.of(
+                        "systemRuntime", statisticalFolder.getRuntime(),
+                        "numDetectedObjects", statisticalFolder.getNumDetectedObjects(),
+                        "numTrackedObjects", statisticalFolder.getNumTrackedObjects(),
+                        "numLandmarks", statisticalFolder.getNumLandmarks());
+                List<Map<String, Object>> landmarks = new ArrayList<>();
+                for (LandMark landmark : fusionSlam.getLandMarks()) {
+                    landmarks.add(Map.of(
+                            "id", landmark.getId(),
+                            "description", landmark.getDescription(),
+                            "coordinates", List.of(landmark.getPoints())));
+                }
+                Map<String, Object> output = Map.of(
+                        "statistics", statistics,
+                        "landMarks", landmarks);
+                String outputPath = "output_file.json"; // Output file path
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                try (FileWriter writer = new FileWriter(outputPath)) {
+                    gson.toJson(output, writer);
+                    System.out.println("Output file written to: " + outputPath);
+                } catch (IOException e) {
+                    System.err.println("Error writing the output file: " + e.getMessage());
+                }
             }
 
         });
-
     }
 }

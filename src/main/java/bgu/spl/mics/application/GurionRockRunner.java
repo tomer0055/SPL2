@@ -46,13 +46,13 @@ public class GurionRockRunner {
             System.err.println("Please provide the path to the configuration file.");
             return;
         }
-        
+        String poseJsonFile="";
         String configFilePath = args[0];
         List<Camera> camerasList = new ArrayList<>();
         List<LiDarWorkerTracker> LiDarList = new ArrayList<>();
         int tickTime=0;
         int duration=0;
-        String poseJsonFile="";
+       
         try (FileReader reader = new FileReader(configFilePath)) {
             // Parse JSON with Gson
             Gson gson = new Gson();
@@ -63,7 +63,7 @@ public class GurionRockRunner {
             
             JsonObject cameras = config.getAsJsonObject("Cameras");
             JsonArray cameraConfigs = cameras.getAsJsonArray("CamerasConfigurations");
-            String cameraDataPath = cameras.get("camera_datas_path").getAsString();
+            final String cameraDataPath = cameras.get("camera_datas_path").getAsString();
 
             for (int i = 0; i < cameraConfigs.size(); i++) {
                 JsonObject camera = cameraConfigs.get(i).getAsJsonObject();
@@ -73,7 +73,7 @@ public class GurionRockRunner {
             // Access LiDAR Configurations
             JsonObject lidarWorkers = config.getAsJsonObject("LiDarWorkers");
             JsonArray lidarConfigs = lidarWorkers.getAsJsonArray("LidarConfigurations");
-            String lidarDataPath = lidarWorkers.get("lidars_data_path").getAsString();
+            final String lidarDataPath = lidarWorkers.get("lidars_data_path").getAsString();
 
             
 
@@ -100,17 +100,21 @@ public class GurionRockRunner {
         StatisticalFolder folder = new StatisticalFolder();
         MessageBusImpl messageBus = MessageBusImpl.getInstance();
         List<Thread> threads = new ArrayList<>();
-        threads.add( new Thread( new TimeService(tickTime, duration)));
+        TimeService timeService = new TimeService(tickTime, duration);
+        Thread th= new Thread(()-> {timeService.run();});
         for(LiDarWorkerTracker lidar: LiDarList){
-            threads.add(new Thread( new LiDarService(lidar,folder)));
+            threads.add(new Thread( ()->{new LiDarService(lidar,folder).run();}));
         }
         for(Camera camera: camerasList){
-            threads.add(new Thread( new CameraService(camera,folder)));
+            threads.add(new Thread(()->{ new CameraService(camera,folder).run();}));
         }
-        threads.add(new Thread(new PoseService(new GPSIMU(poseJsonFile))));
-        threads.add(new Thread( new FusionSlamService( FusionSlam.getInstance())));
+        final GPSIMU gpsimu = new GPSIMU(poseJsonFile);
+        threads.add(new Thread(()->{(new PoseService(gpsimu)).run();}));
+        threads.add(new Thread(()-> new FusionSlamService( FusionSlam.getInstance(),folder).run()));
 
         // TODO: Start the simulation.
         threads.forEach(Thread::start);
+        th.start();
     }
+
 }
