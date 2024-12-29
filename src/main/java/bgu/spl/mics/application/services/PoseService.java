@@ -31,6 +31,7 @@ public class PoseService extends MicroService {
      */
     @Override
     protected void initialize() {
+        register();
         this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
             time++;
             Pose pose = gpsimu.onTick();

@@ -82,6 +82,8 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public synchronized Message awaitMessage(MicroService m) throws InterruptedException {
+
+
 		while(microServiceMap.get(m).isEmpty()){
 			wait();
 		}
