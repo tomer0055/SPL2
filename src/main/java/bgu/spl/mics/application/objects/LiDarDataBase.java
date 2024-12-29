@@ -31,9 +31,7 @@ public class LiDarDataBase {
             Type dataType = new TypeToken<List<StampedCloudPoints>>() {
             }.getType();
             StampedCloudPoint = gson.fromJson(reader, dataType);
-            for (StampedCloudPoints point : StampedCloudPoint) {
-                System.out.println(point); // print the tracked object
-            }
+           // System.out.println(StampedCloudPoint);
         }
 
         catch (IOException e) {

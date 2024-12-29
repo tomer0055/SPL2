@@ -40,11 +40,13 @@ public class GurionRockRunner {
      */
     public static void main(String[] args) {
 
+        
         // TODO: Parse configuration file.
         if (args.length == 0) {
             System.err.println("Please provide the path to the configuration file.");
             return;
         }
+        
         String configFilePath = args[0];
         List<Camera> camerasList = new ArrayList<>();
         List<LiDarWorkerTracker> LiDarList = new ArrayList<>();
@@ -57,6 +59,8 @@ public class GurionRockRunner {
             JsonObject config = gson.fromJson(reader, JsonObject.class);
 
             // Access Cameras Configurations
+
+            
             JsonObject cameras = config.getAsJsonObject("Cameras");
             JsonArray cameraConfigs = cameras.getAsJsonArray("CamerasConfigurations");
             String cameraDataPath = cameras.get("camera_datas_path").getAsString();
@@ -67,9 +71,10 @@ public class GurionRockRunner {
             }
 
             // Access LiDAR Configurations
-            JsonObject lidarWorkers = config.getAsJsonObject("LidarWorkers");
+            JsonObject lidarWorkers = config.getAsJsonObject("LiDarWorkers");
             JsonArray lidarConfigs = lidarWorkers.getAsJsonArray("LidarConfigurations");
             String lidarDataPath = lidarWorkers.get("lidars_data_path").getAsString();
+
             
 
             System.out.println("\nLiDAR Configurations:");
