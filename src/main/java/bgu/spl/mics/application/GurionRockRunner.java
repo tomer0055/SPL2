@@ -10,11 +10,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import bgu.spl.mics.MessageBusImpl;
-import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.GPSIMU;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
+import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.services.CameraService;
 import bgu.spl.mics.application.services.FusionSlamService;
 import bgu.spl.mics.application.services.LiDarService;
@@ -48,6 +48,9 @@ public class GurionRockRunner {
         String configFilePath = args[0];
         List<Camera> camerasList = new ArrayList<>();
         List<LiDarWorkerTracker> LiDarList = new ArrayList<>();
+        int tickTime=0;
+        int duration=0;
+        String poseJsonFile="";
         try (FileReader reader = new FileReader(configFilePath)) {
             // Parse JSON with Gson
             Gson gson = new Gson();
@@ -60,7 +63,7 @@ public class GurionRockRunner {
 
             for (int i = 0; i < cameraConfigs.size(); i++) {
                 JsonObject camera = cameraConfigs.get(i).getAsJsonObject();
-                camerasList.add(new Camera(camera.get("id").getAsInt(), camera.get("frequency").getAsInt()));
+                camerasList.add(new Camera(camera.get("id").getAsInt(), camera.get("frequency").getAsInt(),cameraDataPath));
             }
 
             // Access LiDAR Configurations
@@ -72,13 +75,13 @@ public class GurionRockRunner {
             System.out.println("\nLiDAR Configurations:");
             for (int i = 0; i < lidarConfigs.size(); i++) {
                 JsonObject lidarWorker = lidarConfigs.get(i).getAsJsonObject();
-                LiDarList.add(new LiDarWorkerTracker(lidarWorker.get("id").getAsInt(), lidarWorker.get("frequency").getAsInt()));
+                LiDarList.add(new LiDarWorkerTracker(lidarWorker.get("id").getAsInt(), lidarWorker.get("frequency").getAsInt(),lidarDataPath));
             }
 
             // Access Other Configurations
-            String poseJsonFile = config.get("poseJsonFile").getAsString();
-            int tickTime = config.get("TickTime").getAsInt();
-            int duration = config.get("Duration").getAsInt();
+            poseJsonFile = config.get("poseJsonFile").getAsString();
+            tickTime = config.get("TickTime").getAsInt();
+            duration = config.get("Duration").getAsInt();
 
             System.out.println("\nOther Configurations:");
             System.out.println("  Pose Data Path: " + poseJsonFile);
@@ -92,19 +95,20 @@ public class GurionRockRunner {
         
 
         // TODO: Initialize system components and services.
-        //create statistical foldrer
+        StatisticalFolder folder = new StatisticalFolder();
         MessageBusImpl messageBus = MessageBusImpl.getInstance();
-        MicroService timeService = new TimeService(100, 1000);
+        List<Thread> threads = new ArrayList<>();
+        threads.add( new Thread( new TimeService(tickTime, duration)));
         for(LiDarWorkerTracker lidar: LiDarList){
-            MicroService LiDARService = new LiDarService(lidar);
+            threads.add(new Thread( new LiDarService(lidar,folder)));
         }
         for(Camera camera: camerasList){
-            MicroService cameraService = new CameraService(camera);
+            threads.add(new Thread( new CameraService(camera,folder)));
         }
-        MicroService poseService = new PoseService(new GPSIMU());
-        MicroService fusionSlamService = new FusionSlamService( FusionSlam.getInstance());
+        threads.add(new Thread(new PoseService(new GPSIMU(poseJsonFile))));
+        threads.add(new Thread( new FusionSlamService( FusionSlam.getInstance())));
 
         // TODO: Start the simulation.
-        timeService.run();
+        threads.forEach(Thread::start);
     }
 }
