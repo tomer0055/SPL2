@@ -96,9 +96,6 @@ public class GurionRockRunner {
         } catch (IOException e) {
             System.err.println("Error reading the configuration file: " + e.getMessage());
         }
-
-        
-
         // TODO: Initialize system components and services.
         StatisticalFolder folder = new StatisticalFolder();
         MessageBusImpl messageBus = MessageBusImpl.getInstance();

@@ -22,6 +22,7 @@ import bgu.spl.mics.application.objects.TrackedObject;
 public class FusionSlamService extends MicroService {
 
     private FusionSlam fusionSlam;
+    private int TerminatedServices;
 
     /**
      * Constructor for FusionSlamService.
@@ -32,6 +33,7 @@ public class FusionSlamService extends MicroService {
     public FusionSlamService(FusionSlam fusionSlam) {
         super("FusionSlamService");
         this.fusionSlam = fusionSlam;
+        this.TerminatedServices = 0;
     }
 
     /**
@@ -61,7 +63,10 @@ public class FusionSlamService extends MicroService {
             terminate();
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (terminatedBroadcast) -> {
-            terminate();
+            if(messageBus.getMicroServiceMap().isEmpty()){
+                //create outfile
+            }
+
         });
 
     }
