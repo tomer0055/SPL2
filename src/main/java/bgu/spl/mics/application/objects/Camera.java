@@ -17,11 +17,10 @@ public class Camera {
     int id;
     int ferequency;
     STATUS status;
-    public Camera( int id, int ferequency,STATUS status, String cameraDATAPath) {
+    public Camera( int id, int ferequency, String cameraDATAPath) {
         this.id = id;
         this.ferequency = ferequency;
-
-        this.status = status;        
+        this.status = STATUS.UP;        
         this.cameraDATAPath = cameraDATAPath;
 
     }
