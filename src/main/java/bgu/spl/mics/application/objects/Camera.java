@@ -36,31 +36,7 @@ public class Camera {
      * @return A list of DetectedObjects that were detected in the environment
      * List can be Empty .
      */
-    public List< DetectedObject> detect(){
-        List<DetectedObject> toRemove = new ArrayList<>();
-        List<DetectedObject> currentDetectedObjects = getDetectedObjectsByTime();
-        if(currentDetectedObjects!=null){
-
-        //add the detected objects to the list of detected objects
-        for (DetectedObject detectedObject : currentDetectedObjects) {
-            detectedObjects.put(detectedObject, this.tick);
-        }
-        //compare the current time  only return the objects that were detected if current_time - ferequency = time of detection
-        //remove the objects that were detected ferequency time ago not sure if we need to remove them from the list of detected objects
-        
-        for (Map.Entry<DetectedObject, Integer> entry : detectedObjects.entrySet()) {
-            if(tick - entry.getValue() == ferequency){
-                toRemove.add(entry.getKey());
-            }
-        }
-        for (DetectedObject obj : toRemove) {
-            detectedObjects.remove(obj);
-        }
-    }
-        this.tick++;
-        return toRemove;
-
-}
+    
     /**
      * Returns a list of DetectedObjects that were detected at the current time.
      * by reading the cameraDATA.json file
@@ -68,7 +44,7 @@ public class Camera {
      * @return A list of DetectedObjects that were detected at the current time
      * can be Empty
      */
-public List<DetectedObject> getDetectedObjectsByTime(){
+public StampedCloudPoints[] getDetectedObjectsByTime(){
         
         Gson gson = new Gson();
         List<StampedDetectedObjects> resTime= new ArrayList<>();
@@ -76,12 +52,12 @@ public List<DetectedObject> getDetectedObjectsByTime(){
             Type dataType = new TypeToken<List<StampedDetectedObjects>>(){}.getType();
             StampedDetectedObjects[] objs = gson.fromJson(reader, dataType);
             for (StampedDetectedObjects obj : objs ) {
-                if(obj.getTime()==tick){
+                if(obj.getTime()+ferequency == tick){
                     resTime.add(obj);
                 }
             }
-            List<DetectedObject> detectedObjects = resTime.getFirst().getDetectedObjects();
-            return detectedObjects;
+            //return the detected objects that were detected at the current time
+            //return the detected objects that were detected at the current time
            
         }
         catch (IOException e) {
