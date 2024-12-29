@@ -67,7 +67,7 @@ public class GurionRockRunner {
 
             for (int i = 0; i < cameraConfigs.size(); i++) {
                 JsonObject camera = cameraConfigs.get(i).getAsJsonObject();
-                camerasList.add(new Camera(camera.get("id").getAsInt(), camera.get("frequency").getAsInt(),cameraDataPath));
+                camerasList.add(new Camera(camera.get("id").getAsInt(), camera.get("frequency").getAsInt(),camera.get("camera_key").getAsString(),cameraDataPath));
             }
 
             // Access LiDAR Configurations
