@@ -19,6 +19,10 @@ public class MessageBusImpl implements MessageBus {
 	public static MessageBusImpl getInstance() {
 		if(instance==null){
 			instance = new MessageBusImpl();
+			instance.eventMap = new ConcurrentHashMap<>();
+			instance.broadcastMap = new ConcurrentHashMap<>();
+			instance.microServiceMap = new ConcurrentHashMap<>();
+			instance.events = new ConcurrentHashMap<>();
 		}
 		return instance;
 	}
