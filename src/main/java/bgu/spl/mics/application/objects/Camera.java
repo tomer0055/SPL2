@@ -20,8 +20,10 @@ public class Camera {
     public Camera( int id, int ferequency,STATUS status, String cameraDATAPath) {
         this.id = id;
         this.ferequency = ferequency;
+
         this.status = status;        
         this.cameraDATAPath = cameraDATAPath;
+
     }
     /**
      * Returns a list of DetectedObjects that were detected at the current time.
