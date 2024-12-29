@@ -3,9 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -15,28 +13,16 @@ import com.google.gson.reflect.TypeToken;
  * Responsible for detecting objects in the environment.
  */
 public class Camera {
-    String cameraDATAPath = "../resources/cameraDATA.json";//TODO: change to the correct path
+    String cameraDATAPath;
     int id;
     int ferequency;
     STATUS status;
-    int tick=0;
-    Map <DetectedObject, Integer> detectedObjects;
-    public Camera( int id, int ferequency,STATUS status) {
+    public Camera( int id, int ferequency,STATUS status, String cameraDATAPath) {
         this.id = id;
         this.ferequency = ferequency;
-        this.status = status;
-        this.detectedObjects = new HashMap<>();
-        
+        this.status = status;        
+        this.cameraDATAPath = cameraDATAPath;
     }
-
-
-    /**
-     * Detects objects in the environment.
-     * 
-     * @return A list of DetectedObjects that were detected in the environment
-     * List can be Empty .
-     */
-    
     /**
      * Returns a list of DetectedObjects that were detected at the current time.
      * by reading the cameraDATA.json file
@@ -44,7 +30,7 @@ public class Camera {
      * @return A list of DetectedObjects that were detected at the current time
      * can be Empty
      */
-public StampedCloudPoints[] getDetectedObjectsByTime(){
+public StampedDetectedObjects getDetectedObjectsByTime(int currentTime) {
         
         Gson gson = new Gson();
         List<StampedDetectedObjects> resTime= new ArrayList<>();
@@ -52,13 +38,16 @@ public StampedCloudPoints[] getDetectedObjectsByTime(){
             Type dataType = new TypeToken<List<StampedDetectedObjects>>(){}.getType();
             StampedDetectedObjects[] objs = gson.fromJson(reader, dataType);
             for (StampedDetectedObjects obj : objs ) {
-                if(obj.getTime()+ferequency == tick){
+                if(obj.getTime()== currentTime){
                     resTime.add(obj);
                 }
             }
-            //return the detected objects that were detected at the current time
-            //return the detected objects that were detected at the current time
-           
+            if(resTime.size()>1){
+                System.err.println("more than one StampedDetectedObjects with the same time");
+            }
+            if(resTime.size()==1){
+                return resTime.get(0);
+            }
         }
         catch (IOException e) {
             e.printStackTrace();  
@@ -70,13 +59,8 @@ public StampedCloudPoints[] getDetectedObjectsByTime(){
     public String getId() {
         return String.valueOf(id);
     }
-
-    public int getTime() {
-        return tick;
-    }
-    //for testing
-    public void setTick(int tick){
-        this.tick = tick;
+    public int getFrequency() {
+        return ferequency;
     }
 
 

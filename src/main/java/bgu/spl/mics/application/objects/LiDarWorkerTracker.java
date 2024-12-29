@@ -16,12 +16,12 @@ public class LiDarWorkerTracker {
     private LiDarDataBase dataBase;
     private int time;
 
-    public LiDarWorkerTracker(int Id, int frequency,STATUS status) {
+    public LiDarWorkerTracker(int Id, int frequency,STATUS status,String filePath) {
         this.Id = Id;
         this.frequency = frequency;
         this.status = status;
         this.lastTrackedObjects = new ArrayList<>();
-        this.dataBase = LiDarDataBase.getInstance("example input/lidar_data.json");
+        this.dataBase = LiDarDataBase.getInstance(filePath);
         this.time = 0;
     }
     public List<TrackedObject> getLastTrackedObjects() {

@@ -33,7 +33,7 @@ public class TrackedObject {
 
     public void setDescription(String description) {
         this.description = description;
-
+    }
     public CloudPoint[] getCoordinates() {
         return coordinates;
     }
