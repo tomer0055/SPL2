@@ -26,7 +26,7 @@ public class Camera {
         this.ferequency = ferequency;
         this.status = status;
         this.detectedObjects = new HashMap<>();
-        
+       
     }
 
 
