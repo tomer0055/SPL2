@@ -45,6 +45,10 @@ public class LiDarWorkerTracker {
     time++;
     return toRet;
    }
+   public int getFrequency()
+   {
+       return frequency;
+   }
    
   
 

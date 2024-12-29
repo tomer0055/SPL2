@@ -6,7 +6,7 @@ import java.util.List;
 import bgu.spl.mics.Event;
 import bgu.spl.mics.application.objects.DetectedObject;
 
-public class DetectObjectsEvent implements Event {
+public class DetectObjectsEvent implements Event<DetectedObject> {
     private List<DetectedObject> detectedObjects;
     private int time;
 
