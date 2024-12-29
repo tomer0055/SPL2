@@ -29,5 +29,8 @@ public class StampedCloudPoints {
     public int getTime() {
         return time;
     }
+    public List<List<Double>> getPoints() {
+        return points;
+    }
     
 }

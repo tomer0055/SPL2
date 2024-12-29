@@ -19,9 +19,12 @@ public class LiDarService extends MicroService {
      *
      * @param liDarTracker The LiDAR tracker object that this service will use to process data.
      */
+    LiDarWorkerTracker liDarTracker;
+    private int currentTick;
     public LiDarService(LiDarWorkerTracker liDarTracker) {
-        super("Change_This_Name");
-        // TODO Implement this
+        super("Lidar"+liDarTracker.getId());
+        this.liDarTracker = liDarTracker;
+        this.currentTick = 0;
     }
 
     /**
@@ -31,6 +34,11 @@ public class LiDarService extends MicroService {
      */
     @Override
     protected void initialize() {
-        // TODO Implement this
+       
+            
+        }
+        //subscribe to DetectObjectsEvent
+        //subscribe to TickBroadcast
     }
-}
+
+
