@@ -82,6 +82,7 @@ public class CameraService extends MicroService {
            if(futureHashMap.containsKey(i)&& i+camera.getFrequency() <= tick){
             StampedDetectedObjects objs = camera.getDetectedObjectsByTime(i);
                futureHashMap.get(i).resolve(objs);
+               
            }
        }
     }

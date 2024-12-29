@@ -14,7 +14,7 @@ public class LiDarWorkerTracker {
     private STATUS status;
     private List<TrackedObject>lastTrackedObjects;
     private LiDarDataBase dataBase;
-    private int time;
+
 
 
     public LiDarWorkerTracker(int Id, int frequencys,String filePath) {
@@ -23,7 +23,7 @@ public class LiDarWorkerTracker {
         this.status = STATUS.UP;
         this.lastTrackedObjects = new ArrayList<>();
         this.dataBase = LiDarDataBase.getInstance(filePath);
-        this.time = 0;
+     
     }
     public List<TrackedObject> getLastTrackedObjects() {
         return lastTrackedObjects;
@@ -33,19 +33,25 @@ public class LiDarWorkerTracker {
     }
 
   
-   public List<TrackedObject> process(List<DetectedObject> objs)
+   public List<TrackedObject> process(StampedDetectedObjects objs)
    {
-    lastTrackedObjects.addAll(dataBase.MatchTrackedObjectToDetobj(objs));
-    // Search if there is an Object with current time= time+frequancy
-    List<TrackedObject> toRet = new ArrayList<>();
-    for (TrackedObject obj : lastTrackedObjects) {
-        if (obj.getTime() == time + frequency) {
-            toRet.add(obj);
+    int currnetObjTime = objs.getTime();
+    DetectedObject[] detectedObjects = objs.getDetectedObjects();
+    List<TrackedObject> trackedObjects = new ArrayList<>();
+    for (DetectedObject detectedObject : detectedObjects) {
+        TrackedObject resObj = dataBase.getTrackedObjectByTimeAndId(objs.getTime(), detectedObject.getId());
+        if(resObj!=null)
+        {
+            trackedObjects.add(resObj);
         }
     }
-    time++;
-    return toRet;
+    lastTrackedObjects.addAll(trackedObjects);
+    return trackedObjects;
    }
+
+
+
+
    public int getFrequency()
    {
        return frequency;

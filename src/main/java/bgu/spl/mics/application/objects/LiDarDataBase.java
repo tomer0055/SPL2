@@ -75,6 +75,15 @@ public class LiDarDataBase {
         }
         return trackedObjects;
     }
+    public TrackedObject getTrackedObjectByTimeAndId(int time, String id) {
+        StampedCloudPoints stampedCloudPoints = getStampedCloudById(id);
+        if(stampedCloudPoints.getTime()==time)
+        {
+            List<TrackedObject> trackedObject = StampedCloudToTrackedObj(List.of(stampedCloudPoints));
+            return trackedObject.get(0);
+        }
+        return null;
+    }
 
     private StampedCloudPoints getStampedCloudById(String id) {
         for (StampedCloudPoints object : StampedCloudPoint) {
@@ -82,11 +91,6 @@ public class LiDarDataBase {
                 return object;
             }
         }
-        return null;
-    }
-
-    public TrackedObject getTrackedObjById(String id) {
-
         return null;
     }
 
@@ -98,8 +102,10 @@ public class LiDarDataBase {
      */
     private List<TrackedObject> StampedCloudToTrackedObj(List<StampedCloudPoints> stampedCloudPoints) {
         List<TrackedObject> trackedObjects = new ArrayList<>();
+
         for (StampedCloudPoints obj : stampedCloudPoints) {
             List<List<Double>> points = obj.getPoints();
+
             CloudPoint[] cloudPoints = new CloudPoint[points.size()];
             for (int i = 0; i < points.size(); i++) {
                 int x = points.get(i).get(0).intValue();
