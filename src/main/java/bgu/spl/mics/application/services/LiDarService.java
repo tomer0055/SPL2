@@ -14,6 +14,8 @@ import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
 import bgu.spl.mics.application.objects.TrackedObject;
+import bgu.spl.mics.application.objects.StatisticalFolder;
+
 
 /**
  * LiDarService is responsible for processing data from the LiDAR sensor and
@@ -33,13 +35,14 @@ public class LiDarService extends MicroService {
     LiDarWorkerTracker liDarTracker;
     private int currentTick;
     private final Queue<DetectObjectsEvent> pendingEvents = new ConcurrentLinkedQueue<>();
-
     private HashMap<Integer,Future<List<TrackedObject>>> futureHashMap = new HashMap<>();
     private Queue<List<TrackedObject>> trackedObjects = new ConcurrentLinkedQueue<>();
-    public LiDarService(LiDarWorkerTracker liDarTracker) {
+    StatisticalFolder statisticalFolder;
+    public LiDarService(LiDarWorkerTracker liDarTracker,StatisticalFolder statisticalFolder) {
         super("Lidar"+liDarTracker.getId());
         this.liDarTracker = liDarTracker;
         this.currentTick = 0;
+        this.statisticalFolder = statisticalFolder;
     }
 
     /**

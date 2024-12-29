@@ -1,6 +1,14 @@
 package bgu.spl.mics.application.objects;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * Represents the robot's GPS and IMU system.
@@ -9,20 +17,25 @@ import java.util.Stack;
 public class GPSIMU {
     private int CurrentTick;
     private STATUS status;
-    private Stack<Pose> PoseList;
-    public GPSIMU( ){
+    private ConcurrentHashMap<Integer,Pose> PoseList;
+    public GPSIMU(String filePath ){
         this.CurrentTick = 0;
         this.status = STATUS.UP;
-        this.PoseList = new Stack<Pose>();
+        Gson gson = new Gson();
+        this.PoseList = new ConcurrentHashMap<Integer,Pose>();
+        try (FileReader reader = new FileReader(filePath)) {
+            Type dataType = new TypeToken<List<Pose>>() {
+            }.getType();
+            PoseList = gson.fromJson(reader, dataType);
+        }
+
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    public void incrementTick(){
+
+    public Pose onTick(){
         CurrentTick++;
-    }
-    public Pose getPose(){
-        //todo: implement
-        return PoseList.pop();
-    }
-    public void addPose(Pose pose){
-        PoseList.push(pose);
+        return PoseList.get(CurrentTick);
     }
 }
