@@ -12,7 +12,7 @@
     <property name="user.country" value="IL"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk-23.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire/surefirebooter-20241226150100816_3.jar /Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire 2024-12-26T15-01-00_790-jvmRun1 surefire-20241226150100816_1tmp surefire_0-20241226150100816_2tmp"/>
+    <property name="sun.java.command" value="/Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire/surefirebooter-20241226221245363_3.jar /Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire 2024-12-26T22-12-45_331-jvmRun1 surefire-20241226221245363_1tmp surefire_0-20241226221245363_2tmp"/>
     <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="jdk.debug" value="release"/>
     <property name="test" value="LidarDataBaseTest#testLidarDataBaseGetStampedCloudByTime"/>
@@ -30,7 +30,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="apple.awt.application.name" value="ForkedBooter"/>
-    <property name="surefire.real.class.path" value="/Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire/surefirebooter-20241226150100816_3.jar"/>
+    <property name="surefire.real.class.path" value="/Users/tomerhamuel/year 2/SPL/Skeleton/target/surefire/surefirebooter-20241226221245363_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.runtime.version" value="23.0.1+11-39"/>
