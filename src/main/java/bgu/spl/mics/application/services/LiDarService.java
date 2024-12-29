@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
+import bgu.spl.mics.application.objects.StatisticalFolder;
 
 /**
  * LiDarService is responsible for processing data from the LiDAR sensor and
@@ -21,10 +22,12 @@ public class LiDarService extends MicroService {
      */
     LiDarWorkerTracker liDarTracker;
     private int currentTick;
-    public LiDarService(LiDarWorkerTracker liDarTracker) {
+    StatisticalFolder statisticalFolder;
+    public LiDarService(LiDarWorkerTracker liDarTracker,StatisticalFolder statisticalFolder) {
         super("Lidar"+liDarTracker.getId());
         this.liDarTracker = liDarTracker;
         this.currentTick = 0;
+        this.statisticalFolder = statisticalFolder;
     }
 
     /**
