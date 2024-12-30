@@ -37,6 +37,7 @@ public class MessageBusImpl implements MessageBus {
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		broadcastMap.putIfAbsent(type, new ConcurrentLinkedQueue<>());
 		broadcastMap.get(type).add(m);
+		
 	}
 
 	@Override
