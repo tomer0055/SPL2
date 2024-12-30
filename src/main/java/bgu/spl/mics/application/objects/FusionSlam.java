@@ -43,4 +43,7 @@ public class FusionSlam {
     public void updatePoses(Pose pose) {
         poses.add(pose);
     }
+    public List<LandMark> getLandMarks(){
+        return landMarks;
+    }
 }

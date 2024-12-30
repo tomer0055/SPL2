@@ -24,7 +24,7 @@ public abstract class MicroService implements Runnable {
 
     protected boolean terminated = false;
     private final String name;
-    private final  MessageBusImpl messageBus;
+    protected  final  MessageBusImpl messageBus;
     private final ConcurrentHashMap<Class<? extends Message>, Callback<?>> callbacks;
     protected int time;//not sure
 
@@ -149,6 +149,7 @@ public abstract class MicroService implements Runnable {
      * message.
      */
     protected final void terminate() {
+        messageBus.unregister(this);
         this.terminated = true;
     }
 

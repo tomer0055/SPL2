@@ -96,9 +96,6 @@ public class GurionRockRunner {
         } catch (IOException e) {
             System.err.println("Error reading the configuration file: " + e.getMessage());
         }
-
-        
-
         // TODO: Initialize system components and services.
         StatisticalFolder folder = new StatisticalFolder();
         MessageBusImpl messageBus = MessageBusImpl.getInstance();
@@ -113,7 +110,7 @@ public class GurionRockRunner {
         }
         final GPSIMU gpsimu = new GPSIMU(poseJsonFile);
         threads.add(new Thread(()->{(new PoseService(gpsimu)).run();}));
-        threads.add(new Thread(()-> new FusionSlamService( FusionSlam.getInstance()).run()));
+        threads.add(new Thread(()-> new FusionSlamService( FusionSlam.getInstance(),folder).run()));
 
         // TODO: Start the simulation.
         threads.forEach(Thread::start);
