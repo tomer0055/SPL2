@@ -56,15 +56,12 @@ public class FusionSlamService extends MicroService {
         this.register();
         this.subscribeEvent(PoseEvent.class, ((poseEvent) -> {
             fusionSlam.updatePoses(poseEvent.getPose());
-            fusionSlam = fusionSlam.getInstance();
         }));
         this.subscribeEvent(TrackedObjectsEvent.class, ((TrackedObjectsEvent) -> {
             List<TrackedObject> objects = TrackedObjectsEvent.getObjects();
             for (TrackedObject object : objects) {
-                LandMark LandMark = new LandMark(object.getId(), object.getDescription(), object.getCoordinates());
-                fusionSlam.updateLandMarks(LandMark);
+                fusionSlam.updateLandMarks(object);
             }
-            fusionSlam = fusionSlam.getInstance();
         }));
         this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
             time++;
@@ -81,7 +78,7 @@ public class FusionSlamService extends MicroService {
                         "numTrackedObjects", statisticalFolder.getNumTrackedObjects(),
                         "numLandmarks", statisticalFolder.getNumLandmarks());
                 List<Map<String, Object>> landmarks = new ArrayList<>();
-                for (LandMark landmark : fusionSlam.getLandMarks()) {
+                for(LandMark landmark : fusionSlam.getLandMarks().values()) {
                     landmarks.add(Map.of(
                             "id", landmark.getId(),
                             "description", landmark.getDescription(),

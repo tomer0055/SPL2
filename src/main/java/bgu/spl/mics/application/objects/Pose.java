@@ -16,4 +16,16 @@ public class Pose {
         this.yaw = yaw;
         this.time = time;
     }
+    public int getTime(){
+        return time;
+    }
+    public float getX() {
+        return x;
+    }
+    public float getY() {
+        return y;
+    }
+    public float getYaw() {
+        return yaw;
+    }
 }

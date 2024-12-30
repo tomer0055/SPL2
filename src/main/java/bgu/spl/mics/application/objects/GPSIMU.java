@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -15,15 +16,19 @@ import com.google.gson.reflect.TypeToken;
 public class GPSIMU {
     private int CurrentTick;
     private STATUS status;
-    private List<Pose> PoseList;
+    private ConcurrentHashMap<Integer,Pose> PoseMap;
     public GPSIMU(String filePath ){
         this.CurrentTick = 0;
         this.status = STATUS.UP;
         Gson gson = new Gson();
         try (FileReader reader = new FileReader(filePath)) {
+            List<Pose> PoseList;
             Type dataType = new TypeToken<List<Pose>>() {
             }.getType();
             PoseList = gson.fromJson(reader, dataType);
+            for(Pose pose : PoseList){
+                PoseMap.put(pose.getTime(),pose);
+            }
         }
 
         catch (IOException e) {
@@ -33,6 +38,6 @@ public class GPSIMU {
 
     public Pose onTick(){
         CurrentTick++;
-        return PoseList.get(CurrentTick-1);
+        return PoseMap.get(CurrentTick);
     }
 }
