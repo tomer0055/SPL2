@@ -91,4 +91,7 @@ public class MessageBusImpl implements MessageBus {
 		}
 		return microServiceMap.get(m).poll();
 	}
+	public ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> getMicroServiceMap() {
+		return microServiceMap;
+	}
 }
