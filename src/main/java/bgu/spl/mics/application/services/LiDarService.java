@@ -13,6 +13,7 @@ import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
+import bgu.spl.mics.application.objects.STATUS;
 import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
 
@@ -68,7 +69,15 @@ public class LiDarService extends MicroService {
                 if(obj.getFuture().isDone())
                 {
                     pendingEvents.remove(obj);
-                    List<TrackedObject> tr = liDarTracker.process(obj.getFuture().resultNow());
+                    List<TrackedObject> tr = liDarTracker.process(obj.getFuture().get());
+                    if(liDarTracker.getStatus() == STATUS.ERROR)
+                    {
+                        CrashedBroadcast e = new CrashedBroadcast(this, "LydarWorker"+liDarTracker.getId()+" has crashed ");
+                        this.sendBroadcast(e);
+                        this.terminate();
+                    }
+                    messageBus.complete(obj,obj.getFuture().get());
+
                     TrackedObjectsEvent e = new TrackedObjectsEvent(tr);
                     trackedObjects.add(tr);
                     Future<List<TrackedObject>> f = this.sendEvent(e);

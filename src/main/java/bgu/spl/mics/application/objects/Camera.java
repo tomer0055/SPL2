@@ -20,12 +20,12 @@ public class Camera {
     int ferequency;
     STATUS status;
     String camera_key;
-    public Camera( int id, int ferequency,String camKey, String cameraDATAPath) {
+    public Camera( int id, int ferequency,String camera_key, String cameraDATAPath) {
         this.id = id;
         this.ferequency = ferequency;
         this.status = STATUS.UP;        
         this.cameraDATAPath = cameraDATAPath;
-        this.camera_key = camKey;
+        this.camera_key = camera_key;
 
     }
     /**
@@ -75,6 +75,15 @@ public StampedDetectedObjects getDetectedObjectsByTime(int currentTime) {
     }
     public int getFrequency() {
         return ferequency;
+    }
+    public STATUS getStatus() {
+        return status;
+    }
+    public void setStatus(STATUS status) {
+        this.status = status;
+    }
+    public String getCamera_key() {
+        return camera_key;
     }
 
 
