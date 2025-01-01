@@ -11,7 +11,6 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
-import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
@@ -99,16 +98,12 @@ public class LiDarService extends MicroService {
                 Thread.currentThread().interrupt();
             }
         });
+        //
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
             this.terminate();
         });
-        this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
-        {
-           
-                this.terminate();
-          
-        });
+        
 
     }
     private void addFuture(Future<List<TrackedObject>> f) {

@@ -55,9 +55,8 @@ public class CameraService extends MicroService {
             time = event.getTick();
             StampedDetectedObjects res = camera.getDetectedObjectsByTime(time);
             //check if error detected
-            
-            detectErorr(res);
             if(res != null && res.getDetectedObjects().length != 0){
+                detectErorr(res);
                 detectedObjects.add(res);
                 for (int i=0; i<res.getDetectedObjects().length; i++){
                     folder.incrementDetectedObjects();
@@ -87,11 +86,10 @@ public class CameraService extends MicroService {
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
         {
-            if(messageBus.getMicroServiceMap().isEmpty())
-            {
-                //folder.writeToFile();
+        
+            
                 this.terminate();
-            }
+            
         });
         
 

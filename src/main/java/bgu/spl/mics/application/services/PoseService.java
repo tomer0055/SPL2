@@ -46,15 +46,15 @@ public class PoseService extends MicroService {
                     this.sendEvent(event);
                 }
             } else {
+                
                 this.sendBroadcast(new TerminatedBroadcast());
+                terminate();
             }
 
             time++;
 
         });
-        this.subscribeBroadcast(TerminatedBroadcast.class, (TerminateBroadcast) -> {
-            this.terminate();
-        });
+       
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast) -> {
             terminate();
         });
