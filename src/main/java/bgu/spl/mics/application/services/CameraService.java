@@ -125,9 +125,9 @@ public class CameraService extends MicroService {
         for (DetectedObject detectedObject : objs.getDetectedObjects()) {
             if (detectedObject != null && detectedObject.getId().equals("ERROR")) {
                 camera.setStatus(STATUS.ERROR);
-                CrashedBroadcast e = new CrashedBroadcast(this,camera.getCamera_key()+" "+detectedObject.getDescription());
-                this.sendBroadcast(e);
+                return detectedObject;
             }
         }
+        return null;
     }
 }
