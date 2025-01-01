@@ -261,7 +261,7 @@
           }
         ]
       ],
-      "description": "",
+      "description": "Wall",
       "id": "Wall_4"
     },
     {
@@ -361,7 +361,7 @@
           }
         ]
       ],
-      "description": "",
+      "description": "Wall",
       "id": "Wall_3"
     },
     {
@@ -473,7 +473,7 @@
           }
         ]
       ],
-      "description": "",
+      "description": "Circular Base",
       "id": "Circular_Base_1"
     },
     {
@@ -625,7 +625,7 @@
           }
         ]
       ],
-      "description": "",
+      "description": "Wall",
       "id": "Wall_2"
     },
     {
@@ -1113,7 +1113,7 @@
           }
         ]
       ],
-      "description": "",
+      "description": "Wall",
       "id": "Wall_1"
     },
     {
@@ -1141,7 +1141,7 @@
           }
         ]
       ],
-      "description": "",
+      "description": "Chair Base",
       "id": "Chair_Base_1"
     },
     {
@@ -1205,15 +1205,15 @@
           }
         ]
       ],
-      "description": "",
+      "description": "Door",
       "id": "Door_1"
     }
   ],
   "description": "camera1 GLaDOS has repurposed the robot to conduct endless cake-fetching tests. Success is a lie.",
   "statistics": {
-    "numDetectedObjects": 39,
-    "numLandmarks": 7,
     "numTrackedObjects": 6,
-    "systemRuntime": 8
+    "systemRuntime": 8,
+    "numDetectedObjects": 39,
+    "numLandmarks": 7
   }
 }

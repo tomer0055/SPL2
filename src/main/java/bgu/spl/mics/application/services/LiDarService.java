@@ -105,13 +105,9 @@ public class LiDarService extends MicroService {
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
         {
-            if(messageBus.getMicroServiceMap().isEmpty())
-            
-            {
-                // create outfile
-                //statisticalFolder.createOutFile();
+           
                 this.terminate();
-            }
+          
         });
 
     }
