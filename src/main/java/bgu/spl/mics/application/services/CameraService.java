@@ -36,6 +36,7 @@ public class CameraService extends MicroService {
     private StatisticalFolder folder;
     public CameraService(Camera camera,StatisticalFolder folder) {
         super("Camera_"+camera.getId());
+        futureHashMap = new HashMap<>();
         this.camera = camera;
         detectedObjects = new ArrayList<>();
         this.folder = folder;
@@ -64,7 +65,7 @@ public class CameraService extends MicroService {
 
             if(res != null && res.getDetectedObjects().length != 0){
                 detectedObjects.add(res);
-                for (DetectedObject detectedObject : res.getDetectedObjects()) {
+                for (int i=0; i<res.getDetectedObjects().length; i++){
                     folder.incrementDetectedObjects();
                 }
                 DetectObjectsEvent event1 = new DetectObjectsEvent(res,res.getTime());

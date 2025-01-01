@@ -81,8 +81,7 @@ public class FusionSlamService extends MicroService {
 
                     itr.remove();
                     for(TrackedObject object : event.getFuture().get()){
-                        LandMark LandMark = new LandMark(object.getId(), object.getDescription(), object.getCoordinates());
-                        fusionSlam.updateLandMarks(LandMark);
+                        fusionSlam.updateLandMarks(object);
                     }
                     complete(event, event.getFuture().get());
                 }
@@ -90,37 +89,44 @@ public class FusionSlamService extends MicroService {
             }         
         });
 
-        this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast) -> {
+        this.subscribeBroadcast(CrashedBroadcast.class,(c) -> {
+           
             terminate();
-        });
-        this.subscribeBroadcast(TerminatedBroadcast.class, (terminatedBroadcast) -> {
-            if (messageBus.getMicroServiceMap().isEmpty()) {
-                // create outfile
-                Map<String, Integer> statistics = Map.of(
-                        "systemRuntime", statisticalFolder.getRuntime(),
-                        "numDetectedObjects", statisticalFolder.getNumDetectedObjects(),
-                        "numTrackedObjects", statisticalFolder.getNumTrackedObjects(),
-                        "numLandmarks", statisticalFolder.getNumLandmarks());
-                List<Map<String, Object>> landmarks = new ArrayList<>();
-                for (LandMark landmark : fusionSlam.getLandMarks()) {
-                    landmarks.add(Map.of(
-                            "id", landmark.getId(),
-                            "description", landmark.getDescription(),
-                            "coordinates", List.of(landmark.getPoints())));
-                }
-                Map<String, Object> output = Map.of(
-                        "statistics", statistics,
-                        "landMarks", landmarks);
-                String outputPath = "output_file.json"; // Output file path
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                try (FileWriter writer = new FileWriter(outputPath)) {
-                    gson.toJson(output, writer);
-                    System.out.println("Output file written to: " + outputPath);
-                } catch (IOException e) {
-                    System.err.println("Error writing the output file: " + e.getMessage());
-                }
-            }
+            this.createOutputFile();
 
         });
+        this.subscribeBroadcast(TerminatedBroadcast.class, (t) -> {
+            if (messageBus.getMicroServiceMap().size()==2) {
+                terminate();
+                // create outfile
+                this.createOutputFile();
+
+        }});
+    }
+
+    public void createOutputFile() {
+        Map<String, Integer> statistics = Map.of(
+                "systemRuntime", statisticalFolder.getRuntime(),
+                "numDetectedObjects", statisticalFolder.getNumDetectedObjects(),
+                "numTrackedObjects", statisticalFolder.getNumTrackedObjects(),
+                "numLandmarks", statisticalFolder.getNumLandmarks());
+        List<Map<String, Object>> landmarks = new ArrayList<>();
+        for (LandMark landmark : fusionSlam.getLandMarks().values()) {
+            landmarks.add(Map.of(
+                    "id", landmark.getId(),
+                    "description", landmark.getDescription(),
+                    "coordinates", List.of(landmark.getPoints())));
+        }
+        Map<String, Object> output = Map.of(
+                "statistics", statistics,
+                "landMarks", landmarks);
+        String outputPath = "output_file.json"; // Output file path
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try (FileWriter writer = new FileWriter(outputPath)) {
+            gson.toJson(output, writer);
+            System.out.println("Output file written to: " + outputPath);
+        } catch (IOException e) {
+            System.err.println("Error writing the output file: " + e.getMessage());
+        }
     }
 }

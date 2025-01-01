@@ -1,7 +1,6 @@
 package bgu.spl.mics.application.objects;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages the fusion of sensor data for simultaneous localization and mapping
@@ -11,8 +10,8 @@ import java.util.List;
  */
 public class FusionSlam {
 
-    private ArrayList<LandMark> landMarks;
-    private List<Pose> poses;
+    private ConcurrentHashMap<String, LandMark> landMarks;
+    private ConcurrentHashMap<Integer, Pose> poses;
 
     private static class FusionSlamHolder {
 
@@ -20,8 +19,8 @@ public class FusionSlam {
     }
 
     private FusionSlam() {
-        poses = new ArrayList<>();
-
+        landMarks = new ConcurrentHashMap<>();
+        poses = new ConcurrentHashMap<>();
     }
 
     public static FusionSlam getInstance() {
@@ -33,8 +32,16 @@ public class FusionSlam {
      *
      * @param landMark The new landmark to add to the map.
      */
-    public void updateLandMarks( LandMark landMark) {
-            landMarks.add(landMark);
+    public void updateLandMarks(TrackedObject ob) {
+        CloudPoint[] points = claCloudPoints(ob.getCoordinates(), poses.get(ob.getTime()));
+        if (landMarks.containsKey(ob.getId())) {
+            LandMark landMark = landMarks.get(ob.getId()); // get the current LandMark
+            CloudPoint[] currentPoints = landMark.getPoints().toArray(new CloudPoint[0]); // get the current points
+            CloudPoint[] newPoints = avreageCoordination(currentPoints, points);
+            landMark.updateLocation(newPoints);
+        } else {
+            landMarks.put(ob.getId(), new LandMark(ob.getId(), ob.getDescription(), points));
+        }
     }
 
     /**
@@ -43,9 +50,50 @@ public class FusionSlam {
      * @param pose The pose of the robot.
      */
     public void updatePoses(Pose pose) {
-        poses.add(pose);
+        poses.put(pose.getTime(), pose);
     }
-    public List<LandMark> getLandMarks(){
+
+    public ConcurrentHashMap<String, LandMark> getLandMarks() {
         return landMarks;
+    }
+
+    private CloudPoint[] claCloudPoints(CloudPoint[] localCoordinates, Pose pose) {
+        CloudPoint[] globalCoordinates = new CloudPoint[localCoordinates.length];
+        for (int i = 0; i < localCoordinates.length; i++) {
+            {
+                double yawRadians = Math.toRadians(pose.getYaw());
+
+                // Precompute cosine and sine of the yaw angle
+                double cosTheta = Math.cos(yawRadians);
+                double sinTheta = Math.sin(yawRadians);
+
+                // Transform each local coordinate to global
+                for (CloudPoint local : localCoordinates) {
+                    double xLocal = local.getX();
+                    double yLocal = local.getY();
+
+                    // Apply rotation
+                    double xRotated = cosTheta * xLocal - sinTheta * yLocal;
+                    double yRotated = sinTheta * xLocal + cosTheta * yLocal;
+
+                    // Apply translation
+                    double xGlobal = xRotated + pose.getX();
+                    double yGlobal = yRotated + pose.getY();
+
+                    // Add to global coordinates list
+                    globalCoordinates[i] = new CloudPoint(xGlobal, yGlobal);
+                }
+            }
+        }
+        return globalCoordinates;
+    }
+
+    private CloudPoint[] avreageCoordination(CloudPoint[] currePoints, CloudPoint[] newPoints) {
+        CloudPoint[] avreagePoints = new CloudPoint[currePoints.length];
+        for (int i = 0; i < currePoints.length; i++) {
+            avreagePoints[i] = new CloudPoint((currePoints[i].getX() + newPoints[i].getX()) / 2,
+                    (currePoints[i].getY() + newPoints[i].getY()) / 2);
+        }
+        return avreagePoints;
     }
 }

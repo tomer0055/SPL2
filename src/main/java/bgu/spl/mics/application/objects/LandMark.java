@@ -28,6 +28,12 @@ public class LandMark {
     public List<CloudPoint> getPoints(){
         return points;
     }
+    public void updateLocation(CloudPoint[] newPoint){
+        points.clear();
+        for (CloudPoint point : newPoint){
+            points.add(point);
+        }
+    }
 
 
 }

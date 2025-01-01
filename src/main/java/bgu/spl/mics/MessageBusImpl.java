@@ -4,20 +4,40 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
+ * The {@link MessageBusImpl class is the implementation of the MessageBus
+ * interface.
  * Write your implementation here!
  * Only private fields and methods can be added to this class.
  */
 public class MessageBusImpl implements MessageBus {
 	private static MessageBusImpl instance = null;
-	private ConcurrentHashMap<Class<? extends Event>, ConcurrentLinkedQueue<MicroService>> eventMap;
-	private ConcurrentHashMap<Class<? extends Broadcast>, ConcurrentLinkedQueue<MicroService>> broadcastMap;
-	private ConcurrentHashMap<MicroService,ConcurrentLinkedQueue<Message>> microServiceMap;
-	private ConcurrentHashMap<Event,Future> events;
-	private MessageBusImpl(){};
+	private ConcurrentHashMap<Class<? extends Event>, ConcurrentLinkedQueue<MicroService>> eventMap; // for each event
+																										// type, a list
+																										// of
+																										// microservices
+																										// that
+																										// subscribed to
+																										// it
+	private ConcurrentHashMap<Class<? extends Broadcast>, ConcurrentLinkedQueue<MicroService>> broadcastMap; // for each
+																												// broadcast
+																												// type,
+																												// a
+																												// list
+																												// of
+																												// microservices
+																												// that
+																												// subscribed
+																												// to it
+	private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> microServiceMap; // for each microservice, a
+																								// list of messages that
+																								// it should handle
+	private ConcurrentHashMap<Event, Future> events; //
+
+	private MessageBusImpl() {
+	};
 
 	public static MessageBusImpl getInstance() {
-		if(instance==null){
+		if (instance == null) {
 			instance = new MessageBusImpl();
 			instance.eventMap = new ConcurrentHashMap<>();
 			instance.broadcastMap = new ConcurrentHashMap<>();
@@ -121,10 +141,10 @@ public synchronized void sendBroadcast(Broadcast b) {
 	@Override
 	public void unregister(MicroService m) {
 		microServiceMap.remove(m);
-		for(ConcurrentLinkedQueue<MicroService> microServices : eventMap.values()){
+		for (ConcurrentLinkedQueue<MicroService> microServices : eventMap.values()) {
 			microServices.remove(m);
 		}
-		for(ConcurrentLinkedQueue<MicroService> microServices : broadcastMap.values()){
+		for (ConcurrentLinkedQueue<MicroService> microServices : broadcastMap.values()) {
 			microServices.remove(m);
 		}
 	}
