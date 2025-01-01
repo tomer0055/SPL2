@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -32,6 +34,7 @@ public class FusionSlamService extends MicroService {
     private FusionSlam fusionSlam;
     private int TerminatedServices;
     private StatisticalFolder statisticalFolder;
+    private Queue<TrackedObjectsEvent> pendingEvents = new ConcurrentLinkedQueue<>();
 
     /**
      * Constructor for FusionSlamService.
@@ -55,20 +58,33 @@ public class FusionSlamService extends MicroService {
     protected void initialize() {
         this.register();
         this.subscribeEvent(PoseEvent.class, ((poseEvent) -> {
+            System.out.println(getName() + " subscribed to PoseEvent");
+
             fusionSlam.updatePoses(poseEvent.getPose());
             fusionSlam = fusionSlam.getInstance();
         }));
         this.subscribeEvent(TrackedObjectsEvent.class, ((TrackedObjectsEvent) -> {
-            List<TrackedObject> objects = TrackedObjectsEvent.getObjects();
-            for (TrackedObject object : objects) {
-                LandMark LandMark = new LandMark(object.getId(), object.getDescription(), object.getCoordinates());
-                fusionSlam.updateLandMarks(LandMark);
-            }
-            fusionSlam = fusionSlam.getInstance();
+            System.out.println(getName() + " subscribed to TrackedObjectsEvent");
+
+            pendingEvents.add(TrackedObjectsEvent);
         }));
         this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
+            for (TrackedObjectsEvent event : pendingEvents) {
+                if(event.getFuture().isDone()){
+                    List<TrackedObject> objects = event.getObjects();
+                    pendingEvents.remove(event);
+                    for (TrackedObject object : objects) {
+                        LandMark LandMark = new LandMark(object.getId(), object.getDescription(), object.getCoordinates());
+                        fusionSlam.updateLandMarks(LandMark);
+                    }
+                    fusionSlam = fusionSlam.getInstance();
+                    complete(event, objects);
+                }
+            }
             time++;
+            
         });
+
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast) -> {
             terminate();
         });

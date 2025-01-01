@@ -35,7 +35,7 @@ public abstract class MicroService implements Runnable {
      *             does not have to be unique)
      */
     public MicroService(String name) {
-        time = 0;
+        time = 1;
         this.name = name;
         messageBus = MessageBusImpl.getInstance();
         callbacks = new ConcurrentHashMap<>();

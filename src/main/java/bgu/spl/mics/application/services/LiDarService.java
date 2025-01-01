@@ -10,6 +10,7 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
@@ -34,7 +35,6 @@ public class LiDarService extends MicroService {
      * @param liDarTracker The LiDAR tracker object that this service will use to process data.
      */
     LiDarWorkerTracker liDarTracker;
-    private int currentTick;
     private final Queue<DetectObjectsEvent> pendingEvents = new ConcurrentLinkedQueue<>();
     private HashMap<Integer,Future<List<TrackedObject>>> futureHashMap = new HashMap<>();
     private Queue<List<TrackedObject>> trackedObjects = new ConcurrentLinkedQueue<>();
@@ -42,7 +42,6 @@ public class LiDarService extends MicroService {
     public LiDarService(LiDarWorkerTracker liDarTracker,StatisticalFolder statisticalFolder) {
         super("Lidar"+liDarTracker.getId());
         this.liDarTracker = liDarTracker;
-        this.currentTick = 0;
         this.statisticalFolder = statisticalFolder;
     }
 
@@ -54,13 +53,13 @@ public class LiDarService extends MicroService {
     @Override
     protected void initialize() {
         this.register();
+
+        System.out.println(getName() + " subscribed to DetectObjectsEvent");            
         this.subscribeEvent(DetectObjectsEvent.class, (event)->{
             pendingEvents.add(event);
-          
+            System.out.println(getName() + " was send  DetectObjectsEvent\ntime:" +event.getTime());            
 
 
-
-            
         });
         this.subscribeBroadcast(TickBroadcast.class, (event)->
         {
@@ -76,7 +75,7 @@ public class LiDarService extends MicroService {
                         this.sendBroadcast(e);
                         this.terminate();
                     }
-                    messageBus.complete(obj,obj.getFuture().get());
+                     messageBus.complete(obj,obj.getFuture().get());
 
                     TrackedObjectsEvent e = new TrackedObjectsEvent(tr);
                     trackedObjects.add(tr);
@@ -85,17 +84,26 @@ public class LiDarService extends MicroService {
                     this.addFuture(f);
                 }
             }
-           resolveFutures(currentTick);
-           currentTick++;
+           resolveFutures(time);
+           time++;
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
             this.terminate();
         });
+        this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
+        {
+            if(messageBus.getMicroServiceMap().isEmpty())
+            {
+                // create outfile
+                //statisticalFolder.createOutFile();
+                this.terminate();
+            }
+        });
 
     }
     private void addFuture(Future<List<TrackedObject>> f) {
-        futureHashMap.put(currentTick, f);
+        futureHashMap.put(time, f);
     }
     private void resolveFutures(int tick) {
         for(int i = 0; i < futureHashMap.size(); i++) {

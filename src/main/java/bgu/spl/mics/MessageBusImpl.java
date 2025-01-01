@@ -48,28 +48,58 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public synchronized  void sendBroadcast(Broadcast b) {
 		ConcurrentLinkedQueue<MicroService> microServices = broadcastMap.get(b.getClass());
-		for(MicroService m : microServices){
-			microServiceMap.get(m).add(b);
-		}
-		notifyAll();
+		if (microServices != null) {
+            for (MicroService m : microServices) {
+                ConcurrentLinkedQueue<Message> queue = microServiceMap.get(m);
+                if (queue != null) {
+                    queue.add(b);
+                } else {
+                    // Handle the case where the microServiceMap does not contain the MicroService
+                    System.err.println("No queue found for MicroService: " + m.getName());
+                }
+            }
+            notifyAll();
+        } else {
+            // Handle the case where there are no subscribers for the broadcast
+            System.err.println("No subscribers for broadcast: " + b.getClass().getName());
+        }
 	}
 
 	
 	@Override
 	public synchronized <T> Future<T> sendEvent(Event<T> e) {
-		Future<T> future = new Future<>();
-		events.put(e,future);
 		ConcurrentLinkedQueue<MicroService> microServices = eventMap.get(e.getClass());
-		MicroService m = microServices.poll();
-		microServiceMap.get(m).add(e);
-		notifyAll();
-		microServices.add(m);
-		return future;
+        if (microServices != null) {
+            MicroService m = microServices.peek();
+            if (m != null) {
+                ConcurrentLinkedQueue<Message> queue = microServiceMap.get(m);
+                if (queue != null) {
+                    queue.add(e);
+                    Future<T> future = new Future<>();
+                    events.put(e, future);
+					microServices.remove(m);
+					microServices.add(m);
+                    return future;
+                } else {
+                    // Handle the case where the microServiceMap does not contain the MicroService
+                    System.err.println("No queue found for MicroService: " + m.getName());
+                }
+            } else {
+                // Handle the case where no MicroService is available to handle the event
+                System.err.println("No MicroService available to handle event: " + e.getClass().getName());
+            }
+        } else {
+            // Handle the case where there are no subscribers for the event
+            System.err.println("No subscribers for event: " + e.getClass().getName());
+        }
+        return null;
 	}
 
 	@Override
 	public void register(MicroService m) {
 		microServiceMap.putIfAbsent(m,new ConcurrentLinkedQueue<>());
+		
+
 	}
 
 	@Override

@@ -32,7 +32,14 @@ public class GPSIMU {
     }
 
     public Pose onTick(){
+        if(CurrentTick >= PoseList.size()){
+            System.out.println("Current time is"+CurrentTick+" Pose size is"+PoseList.size()+" so Nope man");
+        }
+        Pose p = PoseList.get(CurrentTick);
         CurrentTick++;
-        return PoseList.get(CurrentTick-1);
+        return p;
+    }
+    public Boolean finishData(){
+        return CurrentTick == PoseList.size();
     }
 }

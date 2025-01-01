@@ -20,6 +20,8 @@ public class FusionSlam {
     }
 
     private FusionSlam() {
+        poses = new ArrayList<>();
+
     }
 
     public static FusionSlam getInstance() {

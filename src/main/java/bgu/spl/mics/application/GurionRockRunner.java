@@ -102,6 +102,8 @@ public class GurionRockRunner {
         List<Thread> threads = new ArrayList<>();
         TimeService timeService = new TimeService(tickTime, duration);
         Thread th= new Thread(()-> {timeService.run();});
+        threads.add(new Thread(()-> new FusionSlamService( FusionSlam.getInstance(),folder).run()));
+
         for(LiDarWorkerTracker lidar: LiDarList){
             threads.add(new Thread( ()->{new LiDarService(lidar,folder).run();}));
         }
@@ -110,7 +112,6 @@ public class GurionRockRunner {
         }
         final GPSIMU gpsimu = new GPSIMU(poseJsonFile);
         threads.add(new Thread(()->{(new PoseService(gpsimu)).run();}));
-        threads.add(new Thread(()-> new FusionSlamService( FusionSlam.getInstance(),folder).run()));
 
         // TODO: Start the simulation.
         threads.forEach(Thread::start);

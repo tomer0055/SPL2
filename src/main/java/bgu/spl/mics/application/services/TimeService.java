@@ -21,7 +21,7 @@ public class TimeService extends MicroService {
     private int time ;
     public TimeService(int TickTime, int Duration) {
         super("TimeService");
-        time = 0;
+        time = 1; // start from 1
         this.TickTime = TickTime;
         this.Duration = Duration;
     }
@@ -32,6 +32,8 @@ public class TimeService extends MicroService {
      */
     @Override
     protected synchronized void initialize() {
+        
+
         while (time < Duration) {
             try {
                 Thread.sleep(TickTime);
