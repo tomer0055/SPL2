@@ -35,14 +35,23 @@ public class LiDarWorkerTracker {
   
    public List<TrackedObject> process(StampedDetectedObjects objs)
    {
+    if(objs==null)
+    {
+        return new ArrayList<>();
+    }
     int currnetObjTime = objs.getTime();
     DetectedObject[] detectedObjects = objs.getDetectedObjects();
     List<TrackedObject> trackedObjects = new ArrayList<>();
-    for (DetectedObject detectedObject : detectedObjects) {
+    for (DetectedObject detectedObject : detectedObjects) 
+    {
         TrackedObject resObj = dataBase.getTrackedObjectByTimeAndId(objs.getTime(), detectedObject.getId());
         if(resObj!=null)
         {
             trackedObjects.add(resObj);
+        }
+        else
+        {
+            this.status = STATUS.ERROR;
         }
     }
     lastTrackedObjects.addAll(trackedObjects);
@@ -56,6 +65,21 @@ public class LiDarWorkerTracker {
    {
        return frequency;
    }
+   private TrackedObject detectError(List<TrackedObject> obj)
+   {
+       for(TrackedObject trackedObject: obj)
+       {
+           if(trackedObject.getId().equals("ERROR"))
+           {
+               return trackedObject;
+           }
+       }
+       return null;
+   }
+    public STATUS getStatus()
+    {
+         return status;
+    }
    
   
 

@@ -11,6 +11,7 @@ import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
+import bgu.spl.mics.application.objects.STATUS;
 import bgu.spl.mics.application.objects.StampedDetectedObjects;
 import bgu.spl.mics.application.objects.StatisticalFolder;
 
@@ -30,11 +31,12 @@ public class CameraService extends MicroService {
      */
     private final Camera camera;
     private int currentTick;
-    private HashMap<Integer,Future<StampedDetectedObjects>> futureHashMap = new HashMap<>();
+    private HashMap<Integer,Future<StampedDetectedObjects>> futureHashMap;
     private List<StampedDetectedObjects> detectedObjects;
     private StatisticalFolder folder;
     public CameraService(Camera camera,StatisticalFolder folder) {
         super("Camera_"+camera.getId());
+        futureHashMap = new HashMap<>();
         this.camera = camera;
         this.currentTick = 0;
         detectedObjects = new ArrayList<>();
@@ -51,18 +53,22 @@ public class CameraService extends MicroService {
         this.register();
         this.subscribeBroadcast(TickBroadcast.class, (event)->{
             StampedDetectedObjects res = camera.getDetectedObjectsByTime(currentTick+camera.getFrequency());
+            //check if error detected
+            detectErorr(res);
             if(res != null && res.getDetectedObjects().length != 0){
                 detectedObjects.add(res);
-                for (DetectedObject detectedObject : res.getDetectedObjects()) {
+                for (int i=0; i<res.getDetectedObjects().length; i++){
                     folder.incrementDetectedObjects();
                 }
                 DetectObjectsEvent event1 = new DetectObjectsEvent(res,res.getTime());
                 Future<StampedDetectedObjects> future = sendEvent(event1);
+                if(future != null)
+                {
+                    event1.setFuture(future);
+                }
                 this.addFuture(future);
-            } else {
-
-            }
-            this.resoloceFutures(currentTick);
+            } 
+            this.resolveFutures(currentTick);
             currentTick++;
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
@@ -77,7 +83,7 @@ public class CameraService extends MicroService {
     private void addFuture(Future<StampedDetectedObjects> future){
         futureHashMap.put(currentTick,future);
     }
-    private void resoloceFutures(int tick){
+    private void resolveFutures(int tick){
        for(int i = 0; i < futureHashMap.size(); i++){
            if(futureHashMap.containsKey(i)&& i+camera.getFrequency() <= tick){
             StampedDetectedObjects objs = camera.getDetectedObjectsByTime(i);
@@ -85,5 +91,14 @@ public class CameraService extends MicroService {
                
            }
        }
+    }
+    private void detectErorr(StampedDetectedObjects objs){
+        for (DetectedObject detectedObject : objs.getDetectedObjects()) {
+            if(detectedObject.getId().equals("ERROR") ){
+                camera.setStatus(STATUS.ERROR);
+                CrashedBroadcast e = new CrashedBroadcast(this,camera.getCamera_key()+" "+detectedObject.getDescription());
+                this.sendBroadcast(e);
+            }
+        }
     }
 }

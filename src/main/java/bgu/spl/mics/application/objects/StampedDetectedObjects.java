@@ -20,4 +20,12 @@ public class StampedDetectedObjects {
     public  DetectedObject[] getDetectedObjects() {
         return detectedObjects;
     }
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder("Time: " + time + "\nDetected Objects:\n");
+        for (DetectedObject obj : detectedObjects) {
+            result.append("  - ID: ").append(obj.getId()).append(", Description: ").append(obj.getDescription()).append("\n");
+        }
+        return result.toString();
+    }
 }

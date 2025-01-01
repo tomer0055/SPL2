@@ -70,7 +70,7 @@ public class FusionSlamService extends MicroService {
             terminate();
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (terminatedBroadcast) -> {
-            if (messageBus.getMicroServiceMap().isEmpty()) {
+            if (messageBus.getMicroServiceMap().size()==1) {
                 // create outfile
                 Map<String, Integer> statistics = Map.of(
                         "systemRuntime", statisticalFolder.getRuntime(),

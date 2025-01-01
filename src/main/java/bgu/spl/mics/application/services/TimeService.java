@@ -16,8 +16,8 @@ public class TimeService extends MicroService {
      * @param TickTime  The duration of each tick in milliseconds.
      * @param Duration  The total number of ticks before the service terminates.
      */
-    private int TickTime;
-    private int Duration;
+    private final int TickTime;
+    private final int Duration;
     private int time ;
     public TimeService(int TickTime, int Duration) {
         super("TimeService");
@@ -34,9 +34,10 @@ public class TimeService extends MicroService {
     protected synchronized void initialize() {
         while (time < Duration) {
             try {
-                Thread.sleep(TickTime);
                 this.sendBroadcast(new TickBroadcast(time));
+                System.out.println("TimeService: "+time);
                 time++;
+                Thread.sleep(TickTime);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

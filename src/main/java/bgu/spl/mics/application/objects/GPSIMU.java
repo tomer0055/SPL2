@@ -26,6 +26,7 @@ public class GPSIMU {
             Type dataType = new TypeToken<List<Pose>>() {
             }.getType();
             PoseList = gson.fromJson(reader, dataType);
+            PoseMap = new ConcurrentHashMap<>();
             for(Pose pose : PoseList){
                 PoseMap.put(pose.getTime(),pose);
             }

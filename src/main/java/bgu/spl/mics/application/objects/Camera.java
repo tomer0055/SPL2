@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -17,11 +19,13 @@ public class Camera {
     int id;
     int ferequency;
     STATUS status;
-    public Camera( int id, int ferequency, String cameraDATAPath) {
+    String camera_key;
+    public Camera( int id, int ferequency,String camera_key, String cameraDATAPath) {
         this.id = id;
         this.ferequency = ferequency;
         this.status = STATUS.UP;        
         this.cameraDATAPath = cameraDATAPath;
+        this.camera_key = camera_key;
 
     }
     /**
@@ -36,8 +40,17 @@ public StampedDetectedObjects getDetectedObjectsByTime(int currentTime) {
         Gson gson = new Gson();
         List<StampedDetectedObjects> resTime= new ArrayList<>();
         try(FileReader reader = new FileReader(cameraDATAPath)){
-            Type dataType = new TypeToken<List<StampedDetectedObjects>>(){}.getType();
-            StampedDetectedObjects[] objs = gson.fromJson(reader, dataType);
+              JsonObject root = gson.fromJson(reader, JsonObject.class);
+
+            // Extract the specific camera array
+            JsonArray cameraArray = root.getAsJsonArray(camera_key);
+            if (cameraArray == null) {
+                System.out.println(camera_key +" -> was No camera data found in the JSON file.");
+            }
+            Type dataType = new TypeToken<List<StampedDetectedObjects>>() {}.getType();
+            List<StampedDetectedObjects> objs = gson.fromJson(cameraArray, dataType);
+
+            
             for (StampedDetectedObjects obj : objs ) {
                 if(obj.getTime()== currentTime){
                     resTime.add(obj);
@@ -62,6 +75,15 @@ public StampedDetectedObjects getDetectedObjectsByTime(int currentTime) {
     }
     public int getFrequency() {
         return ferequency;
+    }
+    public STATUS getStatus() {
+        return status;
+    }
+    public void setStatus(STATUS status) {
+        this.status = status;
+    }
+    public String getCamera_key() {
+        return camera_key;
     }
 
 
