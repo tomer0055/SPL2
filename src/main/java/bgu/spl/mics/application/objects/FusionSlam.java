@@ -21,6 +21,7 @@ public class FusionSlam {
     private FusionSlam() {
         landMarks = new ConcurrentHashMap<>();
         poses = new ConcurrentHashMap<>();
+
     }
 
     public static FusionSlam getInstance() {
@@ -32,7 +33,7 @@ public class FusionSlam {
      *
      * @param landMark The new landmark to add to the map.
      */
-    public void updateLandMarks(TrackedObject ob) {
+    public void updateLandMarks(TrackedObject ob, StatisticalFolder statisticalFolder) {
         CloudPoint[] points = claCloudPoints(ob.getCoordinates(), poses.get(ob.getTime()));
         if (landMarks.containsKey(ob.getId())) {
             LandMark landMark = landMarks.get(ob.getId()); // get the current LandMark
@@ -41,6 +42,7 @@ public class FusionSlam {
             landMark.updateLocation(newPoints);
         } else {
             landMarks.put(ob.getId(), new LandMark(ob.getId(), ob.getDescription(), points));
+            statisticalFolder.incrementLandmarks();
         }
     }
 
@@ -89,10 +91,14 @@ public class FusionSlam {
     }
 
     private CloudPoint[] avreageCoordination(CloudPoint[] currePoints, CloudPoint[] newPoints) {
-        CloudPoint[] avreagePoints = new CloudPoint[currePoints.length];
-        for (int i = 0; i < currePoints.length; i++) {
-            avreagePoints[i] = new CloudPoint((currePoints[i].getX() + newPoints[i].getX()) / 2,
-                    (currePoints[i].getY() + newPoints[i].getY()) / 2);
+        CloudPoint[] avreagePoints = new CloudPoint[newPoints.length];
+        for (int i = 0; i < newPoints.length; i++) {
+            if (i>=currePoints.length) {
+                avreagePoints[i] = newPoints[i];
+            } else {
+                avreagePoints[i] = new CloudPoint((currePoints[i].getX() + newPoints[i].getX()) / 2,
+                        (currePoints[i].getY() + newPoints[i].getY()) / 2);
+            }
         }
         return avreagePoints;
     }

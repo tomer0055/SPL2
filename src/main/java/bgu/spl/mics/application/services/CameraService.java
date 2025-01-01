@@ -56,24 +56,20 @@ public class CameraService extends MicroService {
             StampedDetectedObjects res = camera.getDetectedObjectsByTime(time);
             //check if error detected
             
-            DetectedObject errorObj= detectErorr(res);
-            if(res != null && errorObj!=null){
-                CrashedBroadcast e = new CrashedBroadcast(this,camera.getCamera_key()+" "+errorObj.getDescription());
-                System.out.println("CameraService: "+getName()+" detected error: "+errorObj.getDescription() + " at time: "+time);
-                this.sendBroadcast(e);
-            }
-
+            detectErorr(res);
             if(res != null && res.getDetectedObjects().length != 0){
                 detectedObjects.add(res);
                 for (int i=0; i<res.getDetectedObjects().length; i++){
                     folder.incrementDetectedObjects();
                 }
+
                 DetectObjectsEvent event1 = new DetectObjectsEvent(res,res.getTime());
                 Future<StampedDetectedObjects> future = sendEvent(event1);
                 System.out.println("CameraService: "+getName()+" detected "+res.getDetectedObjects().length+" objects at time: "+time);
                 if(future != null)
                 {
                     event1.setFuture(future);
+
                     addFuture(future);
                 }
                 try {
@@ -82,9 +78,7 @@ public class CameraService extends MicroService {
                     Thread.currentThread().interrupt();
                 }
                 
-            } else {
-
-            }
+            } 
             this.resolveFutures(time);
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
@@ -110,24 +104,33 @@ public class CameraService extends MicroService {
     private void resolveFutures(int tick){
        for(int i = 0; i < futureHashMap.size(); i++){
            if(futureHashMap.containsKey(i)&& i+camera.getFrequency() <= tick){
-            StampedDetectedObjects objs = camera.getDetectedObjectsByTime(i);
-               futureHashMap.get(i).resolve(objs);
-               futureHashMap.remove(i);
-               
+            for (StampedDetectedObjects stampedDetectedObjects : detectedObjects) {
+                if(stampedDetectedObjects.getTime()==i)
+                {
+                    System.out.println("CameraService: "+getName()+" resolved future at time: "+time);
+                    futureHashMap.get(i).resolve(stampedDetectedObjects);
+                    futureHashMap.remove(i);
+
+                }
+                
+            }  
            }
        }
     }
-    private DetectedObject detectErorr(StampedDetectedObjects objs) {
+    private void  detectErorr(StampedDetectedObjects objs) {
         if (objs == null || objs.getDetectedObjects() == null) {
             System.err.println("Warning: StampedDetectedObjects or DetectedObjects is null");
-            return null; 
+             
         }
         for (DetectedObject detectedObject : objs.getDetectedObjects()) {
             if (detectedObject != null && detectedObject.getId().equals("ERROR")) {
+                DetectedObject errorObj = detectedObject;
                 camera.setStatus(STATUS.ERROR);
-                return detectedObject;
+                CrashedBroadcast e = new CrashedBroadcast(this,camera.getCamera_key()+" "+errorObj.getDescription());
+                System.out.println("CameraService: "+getName()+" detected error: "+errorObj.getDescription() + " at time: "+time);
+                this.sendBroadcast(e);
             }
         }
-        return null;
+        
     }
 }

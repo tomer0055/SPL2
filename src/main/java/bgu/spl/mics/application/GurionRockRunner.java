@@ -114,7 +114,7 @@ public class GurionRockRunner {
         final GPSIMU gpsimu = new GPSIMU(poseJsonFile);
         threads.add(new Thread(()->{(new PoseService(gpsimu)).run();}));
 
-        TimeService timeService = new TimeService(tickTime, duration);
+        TimeService timeService = new TimeService(tickTime, duration,folder);
         Thread th= new Thread(()-> {timeService.run();});
         threads.add(th);
 

@@ -71,7 +71,7 @@ public class FusionSlamService extends MicroService {
             fusionSlam.updatePoses(poseEvent.getPose());
 
         }));
-      
+
         this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
             time = tickBroadcast.getTick();
             Iterator<TrackedObjectsEvent> itr = pendingEvents.iterator();
@@ -80,31 +80,33 @@ public class FusionSlamService extends MicroService {
                 if (event.getFuture().isDone()) {
 
                     itr.remove();
-                    for(TrackedObject object : event.getFuture().get()){
-                        fusionSlam.updateLandMarks(object);
+                    for (TrackedObject object : event.getFuture().get()) {
+                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+object.getDescription());
+                        fusionSlam.updateLandMarks(object, statisticalFolder);
                     }
                     complete(event, event.getFuture().get());
                 }
 
-            }         
+            }
         });
 
-        this.subscribeBroadcast(CrashedBroadcast.class,(c) -> {
-           
+        this.subscribeBroadcast(CrashedBroadcast.class, (c) -> {
+
             terminate();
-            this.createOutputFile();
+            this.createOutputFile(c.getDescription());
 
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (t) -> {
-            if (messageBus.getMicroServiceMap().size()==2) {
+            if (messageBus.getMicroServiceMap().size() == 2) {
                 terminate();
                 // create outfile
-                this.createOutputFile();
+                this.createOutputFile("");
 
-        }});
+            }
+        });
     }
 
-    public void createOutputFile() {
+    public void createOutputFile(String description) {
         Map<String, Integer> statistics = Map.of(
                 "systemRuntime", statisticalFolder.getRuntime(),
                 "numDetectedObjects", statisticalFolder.getNumDetectedObjects(),
@@ -117,7 +119,12 @@ public class FusionSlamService extends MicroService {
                     "description", landmark.getDescription(),
                     "coordinates", List.of(landmark.getPoints())));
         }
+        if (description.equals("")) {
+            description = "Terminated successfully";
+        }
+
         Map<String, Object> output = Map.of(
+                "description", description,
                 "statistics", statistics,
                 "landMarks", landmarks);
         String outputPath = "output_file.json"; // Output file path

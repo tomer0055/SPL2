@@ -27,7 +27,7 @@ class CameraServicesTest {
         String LidarPath= "./example_input_with_error/lidar_data.json";
         this.camera = new Camera(id, ferequency,"camera1", path);
         cameraServices = new CameraService(camera, folder);
-        timeService = new TimeService(10, 15);
+        timeService = new TimeService(10, 15,new StatisticalFolder());
         LiDarWorkerTracker lidar = new LiDarWorkerTracker(1,2, LidarPath);
         lidarS = new LiDarService(lidar, folder);
     }

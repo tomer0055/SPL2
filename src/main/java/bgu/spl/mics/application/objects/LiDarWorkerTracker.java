@@ -37,25 +37,30 @@ public class LiDarWorkerTracker {
    {
     if(objs==null)
     {
-        return new ArrayList<>();
+        System.out.println("ERROR: StampedDetectedObjects is null");
     }
+
     int currnetObjTime = objs.getTime();
     DetectedObject[] detectedObjects = objs.getDetectedObjects();
     List<TrackedObject> trackedObjects = new ArrayList<>();
     for (DetectedObject detectedObject : detectedObjects) 
     {
         
-        TrackedObject resObj = dataBase.getTrackedObjectByTimeAndId(objs.getTime(), detectedObject.getId());
+        TrackedObject resObj = dataBase.getTrackedObjectByTimeAndId(currnetObjTime, detectedObject.getId());
         if(resObj!=null)
         {
+
             trackedObjects.add(resObj);
         }
+        else
+        {
+            System.out.println("ERROR: TrackedObject is null&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        }
+        
        
     }
     detectError(trackedObjects);
     lastTrackedObjects.addAll(trackedObjects);
- 
-
     return trackedObjects;
    }
 

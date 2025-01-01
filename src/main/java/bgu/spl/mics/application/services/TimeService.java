@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.objects.StatisticalFolder;
 
 /**
  * TimeService acts as the global timer for the system, broadcasting
@@ -20,12 +21,15 @@ public class TimeService extends MicroService {
     private final int TickTime;
     private final int Duration;
     private int time;
+    private StatisticalFolder folder;
 
-    public TimeService(int TickTime, int Duration) {
+    public TimeService(int TickTime, int Duration,StatisticalFolder folder) {
         super("TimeService");
         time = 1; // start from 1
         this.TickTime = TickTime;
         this.Duration = Duration;
+        this.folder = folder;
+
     }
 
     /**
@@ -43,6 +47,7 @@ public class TimeService extends MicroService {
                 this.sendBroadcast(new TickBroadcast(time));
                 System.out.println("TimeService: " + time);
                 time++;
+                folder.incrementRuntime();
                 
             } catch (InterruptedException e) {
                 e.printStackTrace();

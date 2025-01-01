@@ -31,7 +31,7 @@ public class LiDarDataBase {
             Type dataType = new TypeToken<List<StampedCloudPoints>>() {
             }.getType();
             StampedCloudPoint = gson.fromJson(reader, dataType);
-           // System.out.println(StampedCloudPoint);
+            // System.out.println(StampedCloudPoint);
         }
 
         catch (IOException e) {
@@ -47,13 +47,14 @@ public class LiDarDataBase {
 
     }
 
-    public StampedCloudPoints getStampedCloudByTime(int time) {
+    public List<StampedCloudPoints> getStampedCloudByTime(int time) {
+        List<StampedCloudPoints> stampedCloudPoints = new ArrayList<>();
         for (StampedCloudPoints object : StampedCloudPoint) {
             if (object.getTime() == time) {
-                return object;
+                stampedCloudPoints.add(object);
             }
         }
-        return null;
+        return stampedCloudPoints;
     }
 
     /**
@@ -67,24 +68,31 @@ public class LiDarDataBase {
         for (DetectedObject obj : objs) {
             StampedCloudPoints stampedCloudPoints = getStampedCloudById(obj.getId());
             if (stampedCloudPoints != null) {
-                List<TrackedObject> trackedObject = StampedCloudToTrackedObj(List.of(stampedCloudPoints));
-                trackedObjects.addAll(trackedObject);
+                TrackedObject trackedObject = StampedCloudToTrackedObj(stampedCloudPoints);
+                trackedObject.setDescription(obj.getDescription());
+                trackedObjects.add(trackedObject);
             }
         }
         return trackedObjects;
     }
+
     public TrackedObject getTrackedObjectByTimeAndId(int time, String id) {
-        StampedCloudPoints stampedCloudPoints = getStampedCloudByTime(time);
-        if(stampedCloudPoints==null)
-        {
+
+        List<StampedCloudPoints> stampedCloudPoints = getStampedCloudByTime(time);
+
+        if (stampedCloudPoints == null) {
+            System.out.println("ERROR: StampedCloudPoints is null");
             return null;
         }
-        if(stampedCloudPoints.getId().equals(id))
-        {
-            List<TrackedObject> trackedObject = StampedCloudToTrackedObj(List.of(stampedCloudPoints));
-            return trackedObject.get(0);
+        for (StampedCloudPoints scp : stampedCloudPoints) {
+
+            if (scp.getId().equals(id)) {
+                TrackedObject trackedObject = StampedCloudToTrackedObj(scp);
+                return trackedObject;
+            }
         }
         return null;
+
     }
 
     private StampedCloudPoints getStampedCloudById(String id) {
@@ -102,22 +110,22 @@ public class LiDarDataBase {
      * @param stampedCloudPoints The StampedCloudPoints object to convert.
      * @return The TrackedObject object.
      */
-    private List<TrackedObject> StampedCloudToTrackedObj(List<StampedCloudPoints> stampedCloudPoints) {
-        List<TrackedObject> trackedObjects = new ArrayList<>();
+    private TrackedObject StampedCloudToTrackedObj(StampedCloudPoints stampedCloudPoints) {
+        TrackedObject trackedObjects ;
+        CloudPoint[] points = new CloudPoint[stampedCloudPoints.getPoints().size()];
+        int i = 0;
+        for (List<Double> obj : stampedCloudPoints.getPoints()) {
 
-        for (StampedCloudPoints obj : stampedCloudPoints) {
-            List<List<Double>> points = obj.getPoints();
-
-            CloudPoint[] cloudPoints = new CloudPoint[points.size()];
-            for (int i = 0; i < points.size(); i++) {
-                int x = points.get(i).get(0).intValue();
-                int y = points.get(i).get(1).intValue();
-                cloudPoints[i] = new CloudPoint(x, y);
-            }
-
-            TrackedObject trackedObject = new TrackedObject(obj.getTime(), obj.getId(), cloudPoints, "");
-            trackedObjects.add(trackedObject);
+                int x = obj.get(0).intValue();
+                int y = obj.get(1).intValue();
+                CloudPoint cloudPoint = new CloudPoint(x, y);
+                points[i] = cloudPoint;
+                i++;
+                
+            
         }
+        int time = stampedCloudPoints.getTime();
+        trackedObjects = new TrackedObject(time,stampedCloudPoints.getId(),  points,"");
         return trackedObjects;
     }
 

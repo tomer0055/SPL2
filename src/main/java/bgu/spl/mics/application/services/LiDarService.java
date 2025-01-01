@@ -39,7 +39,7 @@ public class LiDarService extends MicroService {
     private final Queue<DetectObjectsEvent> pendingEvents = new ConcurrentLinkedQueue<>();
     private HashMap<Integer,Future<List<TrackedObject>>> futureHashMap = new HashMap<>();
     private Queue<List<TrackedObject>> trackedObjects = new ConcurrentLinkedQueue<>();
-    StatisticalFolder statisticalFolder;
+    private StatisticalFolder statisticalFolder;
     public LiDarService(LiDarWorkerTracker liDarTracker,StatisticalFolder statisticalFolder) {
         super("Lidar"+liDarTracker.getId());
         this.liDarTracker = liDarTracker;
@@ -77,13 +77,11 @@ public class LiDarService extends MicroService {
                     List<TrackedObject> tr = liDarTracker.process(obj.getFuture().get());
                     if(liDarTracker.getStatus() == STATUS.ERROR)
                     {
-                        CrashedBroadcast e = new CrashedBroadcast(this, "LydarWorker"+liDarTracker.getId()+" has crashed ");
-
+                        CrashedBroadcast e = new CrashedBroadcast(this, "LidarWorker"+liDarTracker.getId()+" has crashed ");
                         this.sendBroadcast(e);
                         System.out.println("LiDarService: "+getName()+" detected error: "+" at time: "+time);
                         this.terminate();
                     }
-                    statisticalFolder.incrementTrackedObjects();
                     TrackedObjectsEvent e = new TrackedObjectsEvent(tr);
                     trackedObjects.add(tr);
                     Future<List<TrackedObject>> f =  this.sendEvent(e);
@@ -121,10 +119,11 @@ public class LiDarService extends MicroService {
         futureHashMap.put(time, f);
     }
     private void resolveFutures(int tick) {
-        for(int i = 0; i < futureHashMap.size(); i++) {
+        for(int i = 0; i <= tick; i++) {
             if(futureHashMap.containsKey(i) && i + liDarTracker.getFrequency() <= tick) {
-                List<TrackedObject> tr = trackedObjects.remove();
-                futureHashMap.get(i).resolve(tr);
+                
+                statisticalFolder.incrementTrackedObjects();
+                futureHashMap.get(i).resolve(trackedObjects.poll());
                 futureHashMap.remove(i);
             }
         }
