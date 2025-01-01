@@ -3,8 +3,11 @@ package bgu.spl.mics.application.services;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -32,6 +35,7 @@ public class FusionSlamService extends MicroService {
     private FusionSlam fusionSlam;
     private int TerminatedServices;
     private StatisticalFolder statisticalFolder;
+    private Queue<TrackedObjectsEvent> pendingEvents = new ConcurrentLinkedQueue<>();
 
     /**
      * Constructor for FusionSlamService.
@@ -44,6 +48,7 @@ public class FusionSlamService extends MicroService {
         this.fusionSlam = fusionSlam;
         this.TerminatedServices = 0;
         this.statisticalFolder = statisticalFolder;
+        this.initialize();
     }
 
     /**
@@ -54,18 +59,37 @@ public class FusionSlamService extends MicroService {
     @Override
     protected void initialize() {
         this.register();
+        System.out.println(getName() + " subscribed to TrackedObjectsEvent");
+        this.subscribeEvent(TrackedObjectsEvent.class, ((event) -> {
+            System.out.println(getName() + " received TrackedObjectsEvent");
+            pendingEvents.add(event);
+        }));
+
+        System.out.println(getName() + " subscribed to PoseEvent");
         this.subscribeEvent(PoseEvent.class, ((poseEvent) -> {
+            System.out.println(getName() + " received PoseEvent");
             fusionSlam.updatePoses(poseEvent.getPose());
+
         }));
-        this.subscribeEvent(TrackedObjectsEvent.class, ((TrackedObjectsEvent) -> {
-            List<TrackedObject> objects = TrackedObjectsEvent.getObjects();
-            for (TrackedObject object : objects) {
-                fusionSlam.updateLandMarks(object);
-            }
-        }));
+      
         this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
-            time++;
+            time = tickBroadcast.getTick();
+            Iterator<TrackedObjectsEvent> itr = pendingEvents.iterator();
+            while (itr.hasNext()) {
+                TrackedObjectsEvent event = itr.next();
+                if (event.getFuture().isDone()) {
+
+                    itr.remove();
+                    for(TrackedObject object : event.getFuture().get()){
+                        LandMark LandMark = new LandMark(object.getId(), object.getDescription(), object.getCoordinates());
+                        fusionSlam.updateLandMarks(LandMark);
+                    }
+                    complete(event, event.getFuture().get());
+                }
+
+            }         
         });
+
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast) -> {
             terminate();
         });

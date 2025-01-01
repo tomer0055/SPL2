@@ -35,7 +35,7 @@ public abstract class MicroService implements Runnable {
      *             does not have to be unique)
      */
     public MicroService(String name) {
-        time = 0;
+        time = 1;
         this.name = name;
         messageBus = MessageBusImpl.getInstance();
         callbacks = new ConcurrentHashMap<>();
@@ -167,7 +167,11 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
-        initialize();
+        if(this.name.equals("TimeService")){
+            System.out.println("TimeService registered");
+            this.register();
+            initialize();
+        }
         while (!terminated) {
             try {
                 Message m = messageBus.awaitMessage(this);

@@ -21,7 +21,7 @@ public class TimeService extends MicroService {
     private int time ;
     public TimeService(int TickTime, int Duration) {
         super("TimeService");
-        time = 0;
+        time = 1; // start from 1
         this.TickTime = TickTime;
         this.Duration = Duration;
     }
@@ -30,14 +30,18 @@ public class TimeService extends MicroService {
      * Initializes the TimeService.
      * Starts broadcasting TickBroadcast messages and terminates after the specified duration.
      */
+    
     @Override
     protected synchronized void initialize() {
+
+
         while (time < Duration) {
             try {
+                Thread.sleep(TickTime*100);
                 this.sendBroadcast(new TickBroadcast(time));
                 System.out.println("TimeService: "+time);
                 time++;
-                Thread.sleep(TickTime);
+                System.out.println("TimeService: "+time);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

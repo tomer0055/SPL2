@@ -25,6 +25,8 @@ public class PoseService extends MicroService {
     public PoseService(GPSIMU gpsimu) {
         super("PoseService");
         this.gpsimu = gpsimu;
+        this.initialize();
+
     }
 
     /**
@@ -36,13 +38,19 @@ public class PoseService extends MicroService {
     protected void initialize() {
         register();
         this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
-            time++;
-            Pose pose = gpsimu.onTick();
-            if (pose != null) {
+            if (!gpsimu.finishData()) {
 
-                PoseEvent event = new PoseEvent(pose);
-                this.sendEvent(event);
+                Pose pose = gpsimu.onTick();
+                if (pose != null) {
+                    PoseEvent event = new PoseEvent(pose);
+                    this.sendEvent(event);
+                }
+            } else {
+                this.sendBroadcast(new TerminatedBroadcast());
             }
+
+            time++;
+
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (TerminateBroadcast) -> {
             this.terminate();

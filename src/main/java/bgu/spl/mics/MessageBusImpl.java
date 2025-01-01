@@ -48,52 +48,94 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		eventMap.putIfAbsent(type, new ConcurrentLinkedQueue<>());
-		eventMap.get(type).add(m);
-	}
+public synchronized <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
+    eventMap.putIfAbsent(type, new ConcurrentLinkedQueue<>());
+    if (!eventMap.get(type).contains(m)) {
+        eventMap.get(type).add(m);
+    } else {
+        System.out.println(m.getName() + " is already subscribed to event: " + type.getSimpleName());
+    }
+}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		broadcastMap.putIfAbsent(type, new ConcurrentLinkedQueue<>());
-		broadcastMap.get(type).add(m);
-
+		broadcastMap.computeIfAbsent(type, k->new ConcurrentLinkedQueue<>()).add(m);
+		
 	}
 
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-		(events.get(e)).resolve(result);
+		// Resolve the future associated with the event
+		//remove from thq queue of the microservice the event
+		Future<T> future = events.get(e);
+		if(future!=null){
+			future.resolve(result);
+			events.remove(e);
+
+			
+		}
+		else{
+			// Handle the case where the event is not in the events map
+			System.err.println("Event not found in events map: " + e.getClass().getName());
+		}
 	}
 
 	@Override
-	public synchronized void sendBroadcast(Broadcast b) {
-		ConcurrentLinkedQueue<MicroService> microServices = broadcastMap.get(b.getClass());
-		synchronized (microServices) {
-			for (MicroService m : microServices) {
-				microServiceMap.get(m).add(b);
-			}
-		}
+public synchronized void sendBroadcast(Broadcast b) {
+    ConcurrentLinkedQueue<MicroService> microServices = broadcastMap.get(b.getClass());
+    if (microServices != null) {
+        for (MicroService m : microServices) {
+            ConcurrentLinkedQueue<Message> queue = microServiceMap.get(m);
+            if (queue != null) {
+                queue.add(b);
+			            } else {
+                System.err.println("No queue found for MicroService: " + m.getName());
+            }
+        }
+        notifyAll();
+    } else {
+        System.err.println("No subscribers for broadcast: " + b.getClass().getName());
+    }
+}
 
-		notifyAll();
-	}
-
+	
 	@Override
 	public synchronized <T> Future<T> sendEvent(Event<T> e) {
-		Future<T> future = new Future<>();
-		events.put(e, future);
 		ConcurrentLinkedQueue<MicroService> microServices = eventMap.get(e.getClass());
-		synchronized (microServices) {
+		if (microServices != null && !microServices.isEmpty()) {
 			MicroService m = microServices.poll();
-			microServiceMap.get(m).add(e);
-			notifyAll();
-			microServices.add(m);
+			if (m != null) {
+				try {
+					ConcurrentLinkedQueue<Message> queue = microServiceMap.get(m);
+					if (queue != null) {
+						queue.add(e);
+						Future<T> future = new Future<>();
+						events.put(e, future);
+						return future;
+					} else {
+						System.err.println("No queue found for MicroService: " + m.getName());
+					}
+				} catch (Exception ex) {
+					System.err.println("Exception in sendEvent: " + ex.getMessage());
+				} finally {
+					if (m != null) {
+						microServices.add(m);
+						System.out.println(m.getName() + " was re-added to the " + e.getClass().getSimpleName() + " queue.");
+					}
+				}
+			}
 		}
-		return future;
+		System.err.println("No subscribers for event: " + e.getClass().getName());
+		return null;
 	}
+
+	
 
 	@Override
 	public void register(MicroService m) {
-		microServiceMap.putIfAbsent(m, new ConcurrentLinkedQueue<>());
+		microServiceMap.putIfAbsent(m,new ConcurrentLinkedQueue<>());
+
+
 	}
 
 	@Override
@@ -108,14 +150,29 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public synchronized Message awaitMessage(MicroService m) throws InterruptedException {
+public synchronized Message awaitMessage(MicroService m) throws InterruptedException {
+    ConcurrentLinkedQueue<Message> queue = microServiceMap.get(m);
 
-		while (microServiceMap.get(m).isEmpty()) {
-			wait();
-		}
-		return microServiceMap.get(m).poll();
-	}
+    if (queue == null) {
+        throw new IllegalStateException("MicroService not registered: " + m.getName());
+    }
 
+    // Clean up stale or completed events
+    queue.removeIf(message -> (message instanceof Event) && events.get(message) == null);
+
+    while (queue.isEmpty()) {
+        wait(); // Wait until a message is available in the queue
+    }
+
+    Message message = queue.poll(); // Retrieve and remove the head of the queue
+	System.out.println(m.getName() + " fetch message: " + message.getClass().getSimpleName());
+
+    if (message == null) {
+        throw new IllegalStateException("Queue was unexpectedly empty after wait: " + m.getName());
+    }
+
+    return message;
+}
 	public ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> getMicroServiceMap() {
 		return microServiceMap;
 	}

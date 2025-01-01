@@ -39,7 +39,9 @@ public StampedDetectedObjects getDetectedObjectsByTime(int currentTime) {
         
         Gson gson = new Gson();
         List<StampedDetectedObjects> resTime= new ArrayList<>();
+        
         try(FileReader reader = new FileReader(cameraDATAPath)){
+
               JsonObject root = gson.fromJson(reader, JsonObject.class);
 
             // Extract the specific camera array
@@ -66,6 +68,7 @@ public StampedDetectedObjects getDetectedObjectsByTime(int currentTime) {
         catch (IOException e) {
             e.printStackTrace();  
         } 
+
         return null;
         
     }
