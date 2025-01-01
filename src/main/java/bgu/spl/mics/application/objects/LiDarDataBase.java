@@ -84,10 +84,6 @@ public class LiDarDataBase {
             List<TrackedObject> trackedObject = StampedCloudToTrackedObj(List.of(stampedCloudPoints));
             return trackedObject.get(0);
         }
-        else if(stampedCloudPoints.getId().equals("ERROR"))
-        {
-            return null;
-        }
         return null;
     }
 

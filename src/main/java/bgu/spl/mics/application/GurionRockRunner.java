@@ -100,22 +100,26 @@ public class GurionRockRunner {
         StatisticalFolder folder = new StatisticalFolder();
         MessageBusImpl messageBus = MessageBusImpl.getInstance();
         List<Thread> threads = new ArrayList<>();
-        TimeService timeService = new TimeService(tickTime, duration);
-        Thread th= new Thread(()-> {timeService.run();});
-        threads.add(new Thread(()-> new FusionSlamService( FusionSlam.getInstance(),folder).run()));
+        FusionSlamService fusionSlamService = new FusionSlamService(FusionSlam.getInstance(),folder);
+        threads.add(new Thread(()-> fusionSlamService.run()));
 
         for(LiDarWorkerTracker lidar: LiDarList){
-            threads.add(new Thread( ()->{new LiDarService(lidar,folder).run();}));
+            LiDarService service = new LiDarService(lidar,folder);
+            threads.add(new Thread( ()->{service.run();}));
         }
         for(Camera camera: camerasList){
-            threads.add(new Thread(()->{ new CameraService(camera,folder).run();}));
+            CameraService service = new CameraService(camera,folder);
+            threads.add(new Thread(()->{ service.run();}));
         }
         final GPSIMU gpsimu = new GPSIMU(poseJsonFile);
         threads.add(new Thread(()->{(new PoseService(gpsimu)).run();}));
 
+        TimeService timeService = new TimeService(tickTime, duration);
+        Thread th= new Thread(()-> {timeService.run();});
+        threads.add(th);
+
         // TODO: Start the simulation.
-        threads.forEach(Thread::start);
-        th.start();
+        threads.forEach(Thread::start);     
     }
 
 }

@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -47,6 +48,7 @@ public class FusionSlamService extends MicroService {
         this.fusionSlam = fusionSlam;
         this.TerminatedServices = 0;
         this.statisticalFolder = statisticalFolder;
+        this.initialize();
     }
 
     /**
@@ -57,32 +59,35 @@ public class FusionSlamService extends MicroService {
     @Override
     protected void initialize() {
         this.register();
+        System.out.println(getName() + " subscribed to TrackedObjectsEvent");
+        this.subscribeEvent(TrackedObjectsEvent.class, ((event) -> {
+            System.out.println(getName() + " received TrackedObjectsEvent");
+            pendingEvents.add(event);
+        }));
+
+        System.out.println(getName() + " subscribed to PoseEvent");
         this.subscribeEvent(PoseEvent.class, ((poseEvent) -> {
-            System.out.println(getName() + " subscribed to PoseEvent");
-
+            System.out.println(getName() + " received PoseEvent");
             fusionSlam.updatePoses(poseEvent.getPose());
-            fusionSlam = fusionSlam.getInstance();
-        }));
-        this.subscribeEvent(TrackedObjectsEvent.class, ((TrackedObjectsEvent) -> {
-            System.out.println(getName() + " subscribed to TrackedObjectsEvent");
 
-            pendingEvents.add(TrackedObjectsEvent);
         }));
+      
         this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
-            for (TrackedObjectsEvent event : pendingEvents) {
-                if(event.getFuture().isDone()){
-                    List<TrackedObject> objects = event.getObjects();
-                    pendingEvents.remove(event);
-                    for (TrackedObject object : objects) {
+            time = tickBroadcast.getTick();
+            Iterator<TrackedObjectsEvent> itr = pendingEvents.iterator();
+            while (itr.hasNext()) {
+                TrackedObjectsEvent event = itr.next();
+                if (event.getFuture().isDone()) {
+
+                    itr.remove();
+                    for(TrackedObject object : event.getFuture().get()){
                         LandMark LandMark = new LandMark(object.getId(), object.getDescription(), object.getCoordinates());
                         fusionSlam.updateLandMarks(LandMark);
                     }
-                    fusionSlam = fusionSlam.getInstance();
-                    complete(event, objects);
+                    complete(event, event.getFuture().get());
                 }
-            }
-            time++;
-            
+
+            }         
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast) -> {
