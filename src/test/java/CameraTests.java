@@ -4,13 +4,11 @@ import org.junit.jupiter.api.Test;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.StampedDetectedObjects;
 import bgu.spl.mics.application.objects.StatisticalFolder;
-import bgu.spl.mics.application.services.CameraService;
 
 
 
 public class CameraTests {
 
-    private CameraService cameraService;
     private Camera camera;
 
 

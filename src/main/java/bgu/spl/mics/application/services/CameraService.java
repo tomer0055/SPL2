@@ -39,6 +39,7 @@ public class CameraService extends MicroService {
         this.camera = camera;
         detectedObjects = new ArrayList<>();
         this.folder = folder;
+        this.initialize();
     }
 
     /**
@@ -50,12 +51,14 @@ public class CameraService extends MicroService {
     protected void initialize() {
         this.register();
         this.subscribeBroadcast(TickBroadcast.class, (event)->{
-            StampedDetectedObjects res = camera.getDetectedObjectsByTime(time+camera.getFrequency());
+            time = event.getTick();
+            StampedDetectedObjects res = camera.getDetectedObjectsByTime(time);
             //check if error detected
             
             DetectedObject errorObj= detectErorr(res);
             if(res != null && errorObj!=null){
                 CrashedBroadcast e = new CrashedBroadcast(this,camera.getCamera_key()+" "+errorObj.getDescription());
+                System.out.println("CameraService: "+getName()+" detected error: "+errorObj.getDescription() + " at time: "+time);
                 this.sendBroadcast(e);
             }
 
@@ -66,17 +69,22 @@ public class CameraService extends MicroService {
                 }
                 DetectObjectsEvent event1 = new DetectObjectsEvent(res,res.getTime());
                 Future<StampedDetectedObjects> future = sendEvent(event1);
+                System.out.println("CameraService: "+getName()+" detected "+res.getDetectedObjects().length+" objects at time: "+time);
                 if(future != null)
                 {
                     event1.setFuture(future);
                     addFuture(future);
+                }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
                 
             } else {
 
             }
             this.resolveFutures(time);
-            time++;
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
@@ -108,9 +116,13 @@ public class CameraService extends MicroService {
            }
        }
     }
-    private DetectedObject detectErorr(StampedDetectedObjects objs){
+    private DetectedObject detectErorr(StampedDetectedObjects objs) {
+        if (objs == null || objs.getDetectedObjects() == null) {
+            System.err.println("Warning: StampedDetectedObjects or DetectedObjects is null");
+            return null; 
+        }
         for (DetectedObject detectedObject : objs.getDetectedObjects()) {
-            if(detectedObject.getId().equals("ERROR") ){
+            if (detectedObject != null && detectedObject.getId().equals("ERROR")) {
                 camera.setStatus(STATUS.ERROR);
                 return detectedObject;
             }
