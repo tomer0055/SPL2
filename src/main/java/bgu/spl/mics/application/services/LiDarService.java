@@ -138,16 +138,6 @@ public class LiDarService extends MicroService {
                 iterator.remove();
             }
         }
-        for(int i = 0; i <= tick; i++) {
-            if(futureHashMap.containsKey(i) && i + liDarTracker.getFrequency() <= tick) {
-                
-                
-                List<TrackedObject> t= trackedObjects.poll();
-                
-                futureHashMap.get(i).resolve(t);
-                futureHashMap.remove(i);
-            }
-        }
     }
     private void checkIfSelfTermination() {
         if(liDarTracker.getStatus() == STATUS.DOWN&&futureHashMap.isEmpty())

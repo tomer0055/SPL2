@@ -120,6 +120,7 @@ public class FusionSlamService extends MicroService {
             output.put("lastLiDarFrame", LastTrackedObject);
             output.put("poses", fusionSlam.getPoses());
         });
+        
         this.subscribeBroadcast(TerminatedBroadcast.class, (t) -> {
             if (messageBus.getMicroServiceMap().size() == 1) {
                 terminate();

@@ -88,21 +88,13 @@
     }
   ],
   "statistics": {
-<<<<<<< HEAD
-    "numLandmarks": 0,
-    "numDetectedObjects": 1,
-    "systemRuntime": 14,
-    "numTrackedObjects": 0
-=======
     "systemRuntime": 15,
     "numDetectedObjects": 9,
     "numTrackedObjects": 9,
     "numLandmarks": 7
->>>>>>> d7cd71986d270c0a2862249e3c6567a6199b0041
   },
   "landMarks": [
     {
-      "id": "Wall_4",
       "coordinates": [
         [
           {
@@ -115,10 +107,10 @@
           }
         ]
       ],
-      "description": "Wall"
+      "description": "Wall",
+      "id": "Wall_4"
     },
     {
-      "id": "Wall_3",
       "coordinates": [
         [
           {
@@ -131,10 +123,10 @@
           }
         ]
       ],
-      "description": "Wall"
+      "description": "Wall",
+      "id": "Wall_3"
     },
     {
-      "id": "Circular_Base_1",
       "coordinates": [
         [
           {
@@ -147,10 +139,10 @@
           }
         ]
       ],
-      "description": "Circular Base"
+      "description": "Circular Base",
+      "id": "Circular_Base_1"
     },
     {
-      "id": "Wall_1",
       "coordinates": [
         [
           {
@@ -163,10 +155,10 @@
           }
         ]
       ],
-      "description": "Wall"
+      "description": "Wall",
+      "id": "Wall_1"
     },
     {
-      "id": "Chair_Base_1",
       "coordinates": [
         [
           {
@@ -179,10 +171,10 @@
           }
         ]
       ],
-      "description": "Chair Base"
+      "description": "Chair Base",
+      "id": "Chair_Base_1"
     },
     {
-      "id": "Door",
       "coordinates": [
         [
           {
@@ -195,10 +187,10 @@
           }
         ]
       ],
-      "description": "Door"
+      "description": "Door",
+      "id": "Door"
     },
     {
-      "id": "Wall_5",
       "coordinates": [
         [
           {
@@ -211,7 +203,8 @@
           }
         ]
       ],
-      "description": "Wall"
+      "description": "Wall",
+      "id": "Wall_5"
     }
   ]
 }
