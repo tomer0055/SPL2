@@ -121,11 +121,11 @@ public class FusionSlamService extends MicroService {
     }
 
     public void createOutputFile(String description) {
-        Map<String, Integer> statistics = Map.of(
-                "systemRuntime", statisticalFolder.getRuntime(),
-                "numDetectedObjects", statisticalFolder.getNumDetectedObjects(),
-                "numTrackedObjects", statisticalFolder.getNumTrackedObjects(),
-                "numLandmarks", statisticalFolder.getNumLandmarks());
+        Map<String, Integer> statistics = new LinkedHashMap<>();
+        statistics.put("systemRuntime", statisticalFolder.getRuntime());
+        statistics.put("numDetectedObjects", statisticalFolder.getNumDetectedObjects());
+        statistics.put("numTrackedObjects", statisticalFolder.getNumTrackedObjects());
+        statistics.put("numLandmarks", statisticalFolder.getNumLandmarks());
         List<Map<String, Object>> landmarks = new ArrayList<>();
         for (LandMark landmark : fusionSlam.getLandMarks().values()) {
             landmarks.add(Map.of(
