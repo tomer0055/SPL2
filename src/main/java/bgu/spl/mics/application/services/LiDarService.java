@@ -68,11 +68,7 @@ public class LiDarService extends MicroService {
 
         });
         this.subscribeBroadcast(TerminatedBroadcast.class,(e)->{
-            if(e.getMicroService().equals(TimeService.class))
-            {
-            this.sendEvent(new LidarTerminated(lastTrackedObjects));
             this.terminate();
-            }
         });
         this.subscribeBroadcast(TickBroadcast.class, (event)->
         {
@@ -122,6 +118,7 @@ public class LiDarService extends MicroService {
         //
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
+            this.sendEvent(new LidarTerminated(lastTrackedObjects));
             this.terminate();
         });
         
@@ -136,7 +133,7 @@ public class LiDarService extends MicroService {
             Integer key = iterator.next();
             if(key + liDarTracker.getFrequency() <= tick) {
                 List<TrackedObject> t = trackedObjects.poll();
-                lastTrackedObjects.addAll(t);
+                lastTrackedObjects=t;
                 futureHashMap.get(key).resolve(t);
                 iterator.remove();
             }
