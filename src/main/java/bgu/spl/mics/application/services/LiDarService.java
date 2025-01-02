@@ -92,7 +92,9 @@ public class LiDarService extends MicroService {
                     {
                         this.sendEvent(new LidarTerminated(lastTrackedObjects));
                         CrashedBroadcast e = new CrashedBroadcast(this);
+                        
                         this.sendBroadcast(e);
+                        messageBus.terminate();
                         //System.out.println("LiDarService: "+getName()+" detected error: "+" at time: "+time);
                         this.terminate();
                     }
@@ -120,6 +122,7 @@ public class LiDarService extends MicroService {
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
             this.sendEvent(new LidarTerminated(lastTrackedObjects));
+            messageBus.terminate();
             this.terminate();
         });
         

@@ -86,6 +86,7 @@ public class CameraService extends MicroService {
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
             this.sendEvent(new CameraTerminate(lastFrame));
+            messageBus.terminate();
             this.terminate();
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
@@ -95,7 +96,7 @@ public class CameraService extends MicroService {
         this.subscribeEvent(CameraTerminate.class, (event)->
         {
             this.sendEvent(new CameraTerminate(lastFrame));
-
+            messageBus.terminate();
             this.terminate();
         });
         

@@ -32,6 +32,7 @@ public class MessageBusImpl implements MessageBus {
 																								// list of messages that
 																								// it should handle
 	private ConcurrentHashMap<Event, Future> events; //
+	private Boolean terminate = false;
 
 	private MessageBusImpl() {
 	};
@@ -176,6 +177,14 @@ public synchronized Message awaitMessage(MicroService m) throws InterruptedExcep
 }
 	public ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> getMicroServiceMap() {
 		return microServiceMap;
+	}
+	public Boolean isterminated() {
+		return terminate;
+	}
+
+	public void terminate() {
+		// TODO Auto-generated method stub
+terminate = true;
 	}
 
     
