@@ -81,6 +81,7 @@ public class FusionSlamService extends MicroService {
 
                     itr.remove();
                     for (TrackedObject object : event.getFuture().get()) {
+                        statisticalFolder.incrementTrackedObjects();
                         fusionSlam.updateLandMarks(object, statisticalFolder);
                     }
                     complete(event, event.getFuture().get());

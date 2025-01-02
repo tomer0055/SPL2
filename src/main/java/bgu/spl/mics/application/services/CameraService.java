@@ -2,6 +2,7 @@ package bgu.spl.mics.application.services;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import bgu.spl.mics.Future;
@@ -58,9 +59,7 @@ public class CameraService extends MicroService {
             if(res != null && res.getDetectedObjects().length != 0){
                 detectErorr(res);
                 detectedObjects.add(res);
-                for (int i=0; i<res.getDetectedObjects().length; i++){
-                    folder.incrementDetectedObjects();
-                }
+               
 
                 DetectObjectsEvent event1 = new DetectObjectsEvent(res,res.getTime());
                 Future<StampedDetectedObjects> future = sendEvent(event1);
@@ -76,14 +75,19 @@ public class CameraService extends MicroService {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                
+                this.resolveFutures(time);
             } 
-            this.resolveFutures(time);
+           
             checkIfSelfTermination();
 
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
+            this.terminate();
+        });
+        this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
+        {
+            System.out.println(futureHashMap.toString()); 
             this.terminate();
         });
         
@@ -95,20 +99,20 @@ public class CameraService extends MicroService {
         futureHashMap.put(time,future);
     }
     private void resolveFutures(int tick){
-       for(int i = 0; i < futureHashMap.size(); i++){
-           if(futureHashMap.containsKey(i)&& i+camera.getFrequency() <= tick){
-            for (StampedDetectedObjects stampedDetectedObjects : detectedObjects) {
-                if(stampedDetectedObjects.getTime()==i)
-                {
-                   // System.out.println("CameraService: "+getName()+" resolved future at time: "+time);
-                    futureHashMap.get(i).resolve(stampedDetectedObjects);
-                    futureHashMap.remove(i);
-
+        Iterator<Integer> iterator = futureHashMap.keySet().iterator();
+        while (iterator.hasNext()) {
+            Integer key = iterator.next();
+            if(key + camera.getFrequency() <= tick){
+                for (StampedDetectedObjects stampedDetectedObjects : detectedObjects) {
+                    if(stampedDetectedObjects.getTime()==key)
+                    {
+                        futureHashMap.get(key).resolve(stampedDetectedObjects);
+                        iterator.remove();
+                    }
+                    
                 }
-                
-            }  
-           }
-       }
+            }
+        }
     }
     private void  detectErorr(StampedDetectedObjects objs) {
         if (objs == null || objs.getDetectedObjects() == null) {

@@ -71,7 +71,6 @@ public StampedDetectedObjects getDetectedObjectsByTime(int currentTime) {
         catch (IOException e) {
             e.printStackTrace();  
         } 
-
         return null;
         
     }
