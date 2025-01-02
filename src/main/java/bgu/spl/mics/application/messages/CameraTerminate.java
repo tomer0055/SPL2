@@ -1,22 +1,20 @@
 package bgu.spl.mics.application.messages;
 
 
-import java.util.List;
-
 import bgu.spl.mics.Event;
-import bgu.spl.mics.application.objects.DetectedObject;
+import bgu.spl.mics.application.objects.StampedDetectedObjects;
 
-public class CameraTerminate implements  Event<List<DetectedObject>> {
+public class CameraTerminate implements  Event<StampedDetectedObjects> {
     
-    private  List<DetectedObject> detectedObjects;
+    private  StampedDetectedObjects StampedDetectedObj;
     
-    public CameraTerminate( List<DetectedObject> detectedObjects) {
+    public CameraTerminate( StampedDetectedObjects StampedDetectedObj) {
 
-        this.detectedObjects = detectedObjects;
+        this.StampedDetectedObj = StampedDetectedObj;
 
     }
-    public List<DetectedObject> getDetectedObjects(){
-        return detectedObjects;
+    public StampedDetectedObjects getStampedObjects(){
+        return StampedDetectedObj;
     }
     
 }

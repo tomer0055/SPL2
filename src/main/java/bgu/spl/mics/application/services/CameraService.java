@@ -1,7 +1,6 @@
 package bgu.spl.mics.application.services;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +36,7 @@ public class CameraService extends MicroService {
     private HashMap<Integer,Future<StampedDetectedObjects>> futureHashMap = new HashMap<>();
     private List<StampedDetectedObjects> detectedObjects;
     private StatisticalFolder folder;
-    private DetectedObject[] lastFrame;
+    private StampedDetectedObjects lastFrame;
     public CameraService(Camera camera,StatisticalFolder folder) {
         super("Camera_"+camera.getId());
         futureHashMap = new HashMap<>();
@@ -86,12 +85,16 @@ public class CameraService extends MicroService {
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
-            this.sendEvent(new CameraTerminate(Arrays.asList(lastFrame)));
+            this.sendEvent(new CameraTerminate(lastFrame));
             this.terminate();
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
         {
-            this.sendEvent(new CameraTerminate(Arrays.asList(lastFrame)));
+            this.terminate();
+        });
+        this.subscribeEvent(CameraTerminate.class, (event)->
+        {
+            this.sendEvent(new CameraTerminate(lastFrame));
             this.terminate();
         });
         
@@ -110,7 +113,7 @@ public class CameraService extends MicroService {
                 for (StampedDetectedObjects stampedDetectedObjects : detectedObjects) {
                     if(stampedDetectedObjects.getTime()==key)
                     {
-                        lastFrame = stampedDetectedObjects.getDetectedObjects();
+                        lastFrame = stampedDetectedObjects;
                         futureHashMap.get(key).resolve(stampedDetectedObjects);
                         iterator.remove();
                     }
