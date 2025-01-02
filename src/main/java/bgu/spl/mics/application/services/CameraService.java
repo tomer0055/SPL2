@@ -1,11 +1,14 @@
 package bgu.spl.mics.application.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CameraTerminate;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
@@ -34,6 +37,7 @@ public class CameraService extends MicroService {
     private HashMap<Integer,Future<StampedDetectedObjects>> futureHashMap = new HashMap<>();
     private List<StampedDetectedObjects> detectedObjects;
     private StatisticalFolder folder;
+    private DetectedObject[] lastFrame;
     public CameraService(Camera camera,StatisticalFolder folder) {
         super("Camera_"+camera.getId());
         futureHashMap = new HashMap<>();
@@ -58,9 +62,7 @@ public class CameraService extends MicroService {
             if(res != null && res.getDetectedObjects().length != 0){
                 detectErorr(res);
                 detectedObjects.add(res);
-                for (int i=0; i<res.getDetectedObjects().length; i++){
-                    folder.incrementDetectedObjects();
-                }
+               
 
                 DetectObjectsEvent event1 = new DetectObjectsEvent(res,res.getTime());
                 Future<StampedDetectedObjects> future = sendEvent(event1);
@@ -76,14 +78,20 @@ public class CameraService extends MicroService {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                
+                this.resolveFutures(time);
             } 
-            this.resolveFutures(time);
+           
             checkIfSelfTermination();
 
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
+            this.sendEvent(new CameraTerminate(Arrays.asList(lastFrame)));
+            this.terminate();
+        });
+        this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
+        {
+            this.sendEvent(new CameraTerminate(Arrays.asList(lastFrame)));
             this.terminate();
         });
         
@@ -95,20 +103,21 @@ public class CameraService extends MicroService {
         futureHashMap.put(time,future);
     }
     private void resolveFutures(int tick){
-       for(int i = 0; i < futureHashMap.size(); i++){
-           if(futureHashMap.containsKey(i)&& i+camera.getFrequency() <= tick){
-            for (StampedDetectedObjects stampedDetectedObjects : detectedObjects) {
-                if(stampedDetectedObjects.getTime()==i)
-                {
-                   // System.out.println("CameraService: "+getName()+" resolved future at time: "+time);
-                    futureHashMap.get(i).resolve(stampedDetectedObjects);
-                    futureHashMap.remove(i);
-
+        Iterator<Integer> iterator = futureHashMap.keySet().iterator();
+        while (iterator.hasNext()) {
+            Integer key = iterator.next();
+            if(key + camera.getFrequency() <= tick){
+                for (StampedDetectedObjects stampedDetectedObjects : detectedObjects) {
+                    if(stampedDetectedObjects.getTime()==key)
+                    {
+                        lastFrame = stampedDetectedObjects.getDetectedObjects();
+                        futureHashMap.get(key).resolve(stampedDetectedObjects);
+                        iterator.remove();
+                    }
+                    
                 }
-                
-            }  
-           }
-       }
+            }
+        }
     }
     private void  detectErorr(StampedDetectedObjects objs) {
         if (objs == null || objs.getDetectedObjects() == null) {
@@ -129,7 +138,8 @@ public class CameraService extends MicroService {
     private void checkIfSelfTermination() {
         if(camera.getStatus() == STATUS.DOWN && futureHashMap.isEmpty())
         {
-            this.sendBroadcast(new TerminatedBroadcast());
+            System.out.println(futureHashMap.toString());
+            System.out.println("CameraService: "+getName()+" terminated in time: "+time);
             this.terminate();
         }
     }

@@ -47,7 +47,7 @@ public class PoseService extends MicroService {
                 }
             } else {
                 
-                this.sendBroadcast(new TerminatedBroadcast());
+                this.sendBroadcast(new TerminatedBroadcast(PoseService.class));
                 terminate();
             }
 

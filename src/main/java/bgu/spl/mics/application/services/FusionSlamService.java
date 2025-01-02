@@ -14,7 +14,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CameraTerminate;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
+import bgu.spl.mics.application.messages.LidarTerminated;
 import bgu.spl.mics.application.messages.PoseEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
@@ -72,6 +74,16 @@ public class FusionSlamService extends MicroService {
             fusionSlam.updatePoses(poseEvent.getPose());
 
         }));
+        this.subscribeEvent(CameraTerminate.class, (e)->{
+            //e.getDetectedObjects();
+            //take the last frame from the camera
+            //and put in the out file
+        });
+        this.subscribeEvent(LidarTerminated.class, (e)->{
+            //e.getTrackedObjects();
+            //take the last frame from the lidar
+            //and put in the out file
+        });
 
         this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
             time = tickBroadcast.getTick();
@@ -82,6 +94,7 @@ public class FusionSlamService extends MicroService {
 
                     itr.remove();
                     for (TrackedObject object : event.getFuture().get()) {
+                        statisticalFolder.incrementTrackedObjects();
                         fusionSlam.updateLandMarks(object, statisticalFolder);
                     }
                     complete(event, event.getFuture().get());
@@ -91,6 +104,7 @@ public class FusionSlamService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (c) -> {
+
 
             terminate();
             this.createOutputFile(c.getDescription());
