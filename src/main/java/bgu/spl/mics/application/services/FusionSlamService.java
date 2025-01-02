@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -81,7 +82,7 @@ public class FusionSlamService extends MicroService {
 
                     itr.remove();
                     for (TrackedObject object : event.getFuture().get()) {
-                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+object.getDescription());
+                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + object.getDescription());
                         fusionSlam.updateLandMarks(object, statisticalFolder);
                     }
                     complete(event, event.getFuture().get());
@@ -123,10 +124,10 @@ public class FusionSlamService extends MicroService {
             description = "Terminated successfully";
         }
 
-        Map<String, Object> output = Map.of(
-                "description", description,
-                "statistics", statistics,
-                "landMarks", landmarks);
+        Map<String, Object> output = new LinkedHashMap<>();
+        output.put("description", description);
+        output.put("statistics", statistics);
+        output.put("landMarks", landmarks);
         String outputPath = "output_file.json"; // Output file path
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(outputPath)) {

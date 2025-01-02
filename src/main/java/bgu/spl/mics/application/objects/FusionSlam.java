@@ -34,14 +34,14 @@ public class FusionSlam {
      * @param landMark The new landmark to add to the map.
      */
     public void updateLandMarks(TrackedObject ob, StatisticalFolder statisticalFolder) {
-        CloudPoint[] points = claCloudPoints(ob.getCoordinates(), poses.get(ob.getTime()));
+        CloudPoint[] newPoints = calCloudPoints(ob.getCoordinates(), poses.get(ob.getTime()));
         if (landMarks.containsKey(ob.getId())) {
             LandMark landMark = landMarks.get(ob.getId()); // get the current LandMark
-            CloudPoint[] currentPoints = landMark.getPoints().toArray(new CloudPoint[0]); // get the current points
-            CloudPoint[] newPoints = avreageCoordination(currentPoints, points);
-            landMark.updateLocation(newPoints);
+            CloudPoint[] currentPoints = landMark.getPoints().toArray(new CloudPoint[landMark.getPoints().size()]); // get the current points
+            CloudPoint[] avreagedPointes = avreageCoordination(currentPoints, newPoints);
+            landMark.updateLocation(avreagedPointes);
         } else {
-            landMarks.put(ob.getId(), new LandMark(ob.getId(), ob.getDescription(), points));
+            landMarks.put(ob.getId(), new LandMark(ob.getId(), ob.getDescription(), newPoints));
             statisticalFolder.incrementLandmarks();
         }
     }
@@ -59,38 +59,37 @@ public class FusionSlam {
         return landMarks;
     }
 
-    private CloudPoint[] claCloudPoints(CloudPoint[] localCoordinates, Pose pose) {
+    public CloudPoint[] calCloudPoints(CloudPoint[] localCoordinates, Pose pose) {
         CloudPoint[] globalCoordinates = new CloudPoint[localCoordinates.length];
+        double yawRadians = Math.toRadians(pose.getYaw());
+    
+        // Precompute cosine and sine of the yaw angle
+        double cosTheta = Math.cos(yawRadians);
+        double sinTheta = Math.sin(yawRadians);
+    
+        // Transform each local coordinate to global
         for (int i = 0; i < localCoordinates.length; i++) {
-            {
-                double yawRadians = Math.toRadians(pose.getYaw());
-
-                // Precompute cosine and sine of the yaw angle
-                double cosTheta = Math.cos(yawRadians);
-                double sinTheta = Math.sin(yawRadians);
-
-                // Transform each local coordinate to global
-                for (CloudPoint local : localCoordinates) {
-                    double xLocal = local.getX();
-                    double yLocal = local.getY();
-
-                    // Apply rotation
-                    double xRotated = cosTheta * xLocal - sinTheta * yLocal;
-                    double yRotated = sinTheta * xLocal + cosTheta * yLocal;
-
-                    // Apply translation
-                    double xGlobal = xRotated + pose.getX();
-                    double yGlobal = yRotated + pose.getY();
-
-                    // Add to global coordinates list
-                    globalCoordinates[i] = new CloudPoint(xGlobal, yGlobal);
-                }
-            }
+            CloudPoint local = localCoordinates[i];
+            double xLocal = local.getX();
+            double yLocal = local.getY();
+    
+            // Apply rotation
+            double xRotated = cosTheta * xLocal - sinTheta * yLocal;
+            double yRotated = sinTheta * xLocal + cosTheta * yLocal;
+    
+            // Apply translation
+            double xGlobal = xRotated + pose.getX();
+            double yGlobal = yRotated + pose.getY();
+    
+            // Assign to globalCoordinates array
+            globalCoordinates[i] = new CloudPoint(xGlobal, yGlobal);
         }
+    
         return globalCoordinates;
     }
+    
 
-    private CloudPoint[] avreageCoordination(CloudPoint[] currePoints, CloudPoint[] newPoints) {
+    public CloudPoint[] avreageCoordination(CloudPoint[] currePoints, CloudPoint[] newPoints) {
         CloudPoint[] avreagePoints = new CloudPoint[newPoints.length];
         for (int i = 0; i < newPoints.length; i++) {
             if (i>=currePoints.length) {

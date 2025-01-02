@@ -116,8 +116,8 @@ public class LiDarDataBase {
         int i = 0;
         for (List<Double> obj : stampedCloudPoints.getPoints()) {
 
-                int x = obj.get(0).intValue();
-                int y = obj.get(1).intValue();
+                double x = obj.get(0);
+                double y = obj.get(1);
                 CloudPoint cloudPoint = new CloudPoint(x, y);
                 points[i] = cloudPoint;
                 i++;
