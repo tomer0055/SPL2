@@ -23,7 +23,6 @@ import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.LandMark;
-import bgu.spl.mics.application.objects.Pose;
 import bgu.spl.mics.application.objects.StampedDetectedObjects;
 import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
@@ -43,9 +42,6 @@ public class FusionSlamService extends MicroService {
     private List<TrackedObject> LastTrackedObject;
     private StampedDetectedObjects LastStampedDetectedObject;
     private Map<String, Object> output;
-    private String error;
-    private String faultySensor;
-    private List<Pose> poses;
 
     /**
      * Constructor for FusionSlamService.
@@ -84,12 +80,8 @@ public class FusionSlamService extends MicroService {
         }));
         this.subscribeEvent(CameraTerminate.class, (e) -> {
             this.LastStampedDetectedObject = e.getStampedObjects();
-            if (messageBus.getMicroServiceMap().size() == 1) {
-                output.put("error", error);
-                output.put("faultySensor", faultySensor);
-                output.put("poses", poses);
-                output.put("lastCamerasFrame", LastStampedDetectedObject);
-                output.put("lastLiDarFrame", LastTrackedObject);
+            output.put("lastCamerasFrame", LastStampedDetectedObject);
+            if(messageBus.getMicroServiceMap().size() == 1){
                 terminate();
                 // create outfile
                 this.createOutputFile(output);
@@ -97,12 +89,8 @@ public class FusionSlamService extends MicroService {
         });
         this.subscribeEvent(LidarTerminated.class, (e) -> {
             this.LastTrackedObject = e.getTrackedObjects();
-            if (messageBus.getMicroServiceMap().size() == 1) {
-                output.put("error", error);
-                output.put("faultySensor", faultySensor);
-                output.put("poses", poses);
-                output.put("lastCamerasFrame", LastStampedDetectedObject);
-                output.put("lastLiDarFrame", LastTrackedObject);
+            output.put("lastLiDarFrame", LastTrackedObject);
+            if(messageBus.getMicroServiceMap().size() == 1){
                 terminate();
                 // create outfile
                 this.createOutputFile(output);
@@ -128,18 +116,17 @@ public class FusionSlamService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (c) -> {
-            error = c.getError();
-            faultySensor = c.getService().getName();
-            poses = fusionSlam.getPoses();
+            output.put("error", c.getError());
+            output.put("faultySensor", c.getService().getName());
+            output.put("poses", fusionSlam.getPoses());
         });
         
         this.subscribeBroadcast(TerminatedBroadcast.class, (t) -> {
-            if (messageBus.getMicroServiceMap().size() <= 2) {
+            if (messageBus.getMicroServiceMap().size() == 1) {
                 terminate();
                 // create outfile
-               
-                this.createOutputFile(output);
                 this.messageBus.terminate();
+                this.createOutputFile(output);
                
             }
 
@@ -154,11 +141,10 @@ public class FusionSlamService extends MicroService {
         statistics.put("numLandmarks", statisticalFolder.getNumLandmarks());
         List<Map<String, Object>> landmarks = new ArrayList<>();
         for (LandMark landmark : fusionSlam.getLandMarks().values()) {
-            Map<String,Object> map=new LinkedHashMap<>();
-            map.put("id",landmark.getId());
-            map.put("description",landmark.getDescription());
-            map.put("coordinates",landmark.getPoints());
-            landmarks.add(map);
+            landmarks.add(Map.of(
+                    "id", landmark.getId(),
+                    "description", landmark.getDescription(),
+                    "coordinates", List.of(landmark.getPoints())));
         }
 
         output.put("statistics", statistics);
