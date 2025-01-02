@@ -54,7 +54,11 @@ public class TimeService extends MicroService {
                     this.sendBroadcast(new TerminatedBroadcast(TimeService.class));
                     this.terminate();
                 }
-                
+                else
+                {
+                    
+                }
+
                 
             } catch (InterruptedException e) {
                 e.printStackTrace();

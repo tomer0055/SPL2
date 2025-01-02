@@ -11,6 +11,7 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
+import bgu.spl.mics.application.messages.LidarTerminated;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
@@ -42,6 +43,7 @@ public class LiDarService extends MicroService {
     private HashMap<Integer,Future<List<TrackedObject>>> futureHashMap = new HashMap<>();
     private Queue<List<TrackedObject>> trackedObjects = new ConcurrentLinkedQueue<>();
     private StatisticalFolder statisticalFolder;
+    private List<TrackedObject> lastTrackedObjects;
     public LiDarService(LiDarWorkerTracker liDarTracker,StatisticalFolder statisticalFolder) {
         super("Lidar"+liDarTracker.getId());
         this.liDarTracker = liDarTracker;
@@ -68,6 +70,7 @@ public class LiDarService extends MicroService {
         this.subscribeBroadcast(TerminatedBroadcast.class,(e)->{
             if(e.getMicroService().equals(TimeService.class))
             {
+            this.sendEvent(new LidarTerminated(lastTrackedObjects));
             this.terminate();
             }
         });
@@ -133,6 +136,7 @@ public class LiDarService extends MicroService {
             Integer key = iterator.next();
             if(key + liDarTracker.getFrequency() <= tick) {
                 List<TrackedObject> t = trackedObjects.poll();
+                lastTrackedObjects.addAll(t);
                 futureHashMap.get(key).resolve(t);
                 iterator.remove();
             }
