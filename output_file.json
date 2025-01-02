@@ -88,6 +88,12 @@
       "y": 5.8,
       "yaw": 103.09,
       "time": 13
+    },
+    {
+      "x": 3.0,
+      "y": 6.3,
+      "yaw": 120.35,
+      "time": 14
     }
   ],
   "lastLiDarFrame": [
@@ -108,7 +114,7 @@
     }
   ],
   "statistics": {
-    "systemRuntime": 14,
+    "systemRuntime": 15,
     "numDetectedObjects": 9,
     "numTrackedObjects": 9,
     "numLandmarks": 7

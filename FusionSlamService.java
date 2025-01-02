@@ -122,12 +122,11 @@ public class FusionSlamService extends MicroService {
         });
         
         this.subscribeBroadcast(TerminatedBroadcast.class, (t) -> {
-            if (messageBus.getMicroServiceMap().size() <= 2) {
+            if (messageBus.getMicroServiceMap().size() == 1) {
                 terminate();
                 // create outfile
-               
-                this.createOutputFile(output);
                 this.messageBus.terminate();
+                this.createOutputFile(output);
                
             }
 

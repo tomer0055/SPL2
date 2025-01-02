@@ -43,10 +43,8 @@ public class TimeService extends MicroService {
     protected synchronized void initialize() {
         while (time < Duration & !messageBus.isterminated()) {
             try {
-                this.sendBroadcast(new TickBroadcast(time));
-                System.out.println("TimeService: " + time);
-                
-                if(messageBus.getMicroServiceMap().size() == 2 )
+                Thread.sleep(TickTime * 1000);
+                if(messageBus.getMicroServiceMap().size() <= 2)
                 {
                     this.sendBroadcast(new TerminatedBroadcast(TimeService.class));
                     this.terminate();
@@ -55,9 +53,13 @@ public class TimeService extends MicroService {
                 {
                     
                 }
+               
+                this.sendBroadcast(new TickBroadcast(time));
+                System.out.println("TimeService: " + time);
                 time++;
                 folder.incrementRuntime();
-                Thread.sleep(TickTime * 1000);
+             
+
                 
             } catch (InterruptedException e) {
                 e.printStackTrace();

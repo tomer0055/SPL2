@@ -133,7 +133,9 @@ public class CameraService extends MicroService {
             if (detectedObject != null && detectedObject.getId().equals("ERROR")) {
                 DetectedObject errorObj = detectedObject;
                 camera.setStatus(STATUS.ERROR);
+                this.messageBus.terminate();
                 this.sendEvent(new CameraTerminate(lastFrame));
+                
                 CrashedBroadcast e = new CrashedBroadcast(this,errorObj.getDescription());
                 System.out.println("CameraService: "+getName()+" detected error: "+errorObj.getDescription() + " at time: "+time);
                 this.sendBroadcast(e);
