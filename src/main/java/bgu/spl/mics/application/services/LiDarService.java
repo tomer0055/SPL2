@@ -91,7 +91,7 @@ public class LiDarService extends MicroService {
                     if(liDarTracker.getStatus() == STATUS.ERROR)
                     {
                         this.sendEvent(new LidarTerminated(lastTrackedObjects));
-                        CrashedBroadcast e = new CrashedBroadcast(this, "LidarWorker"+liDarTracker.getId()+" has crashed ");
+                        CrashedBroadcast e = new CrashedBroadcast(this);
                         this.sendBroadcast(e);
                         //System.out.println("LiDarService: "+getName()+" detected error: "+" at time: "+time);
                         this.terminate();
@@ -137,16 +137,6 @@ public class LiDarService extends MicroService {
                 lastTrackedObjects=t;
                 futureHashMap.get(key).resolve(t);
                 iterator.remove();
-            }
-        }
-        for(int i = 0; i <= tick; i++) {
-            if(futureHashMap.containsKey(i) && i + liDarTracker.getFrequency() <= tick) {
-                
-                
-                List<TrackedObject> t= trackedObjects.poll();
-                
-                futureHashMap.get(i).resolve(t);
-                futureHashMap.remove(i);
             }
         }
     }

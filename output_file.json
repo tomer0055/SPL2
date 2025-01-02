@@ -1,12 +1,15 @@
 {
-  "error": "camera1 Camera Disconnected",
+  "lastCamerasFrame": {
+    "time": 12,
+    "detectedObjects": [
+      {
+        "id": "Wall_3",
+        "description": "Wall"
+      }
+    ]
+  },
+  "error": "Camera Disconnected",
   "faultySensor": "Camera_1",
-  "lastCamerasFrame": [
-    {
-      "id": "Wall_3",
-      "description": "Wall"
-    }
-  ],
   "poses": [
     {
       "x": 0.0,
@@ -93,18 +96,28 @@
       "time": 14
     }
   ],
+  "lastLiDarFrame": [
+    {
+      "id": "Wall_3",
+      "time": 12,
+      "coordinates": [
+        {
+          "x": 3.1,
+          "y": -0.4
+        },
+        {
+          "x": 3.2,
+          "y": -0.2
+        }
+      ],
+      "description": "Wall"
+    }
+  ],
   "statistics": {
-<<<<<<< HEAD
-    "numLandmarks": 0,
-    "numDetectedObjects": 1,
-    "systemRuntime": 14,
-    "numTrackedObjects": 0
-=======
     "systemRuntime": 15,
     "numDetectedObjects": 9,
     "numTrackedObjects": 9,
     "numLandmarks": 7
->>>>>>> d7cd71986d270c0a2862249e3c6567a6199b0041
   },
   "landMarks": [
     {
