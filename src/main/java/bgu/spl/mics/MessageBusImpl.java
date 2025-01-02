@@ -168,12 +168,15 @@ public synchronized Message awaitMessage(MicroService m) throws InterruptedExcep
 	System.out.println(m.getName() + " fetch message: " + message.getClass().getSimpleName());
 
     if (message == null) {
-        throw new IllegalStateException("Queue was unexpectedly empty after wait: " + m.getName());
-    }
+		System.out.println(m.getName() + " received null message");
+	}
+   
 
     return message;
 }
 	public ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> getMicroServiceMap() {
 		return microServiceMap;
 	}
+
+    
 }

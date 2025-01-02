@@ -133,7 +133,8 @@ public class CameraService extends MicroService {
     private void checkIfSelfTermination() {
         if(camera.getStatus() == STATUS.DOWN && futureHashMap.isEmpty())
         {
-            this.sendBroadcast(new TerminatedBroadcast());
+            System.out.println(futureHashMap.toString());
+            System.out.println("CameraService: "+getName()+" terminated in time: "+time);
             this.terminate();
         }
     }

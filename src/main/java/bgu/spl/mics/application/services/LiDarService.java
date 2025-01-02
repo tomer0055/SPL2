@@ -66,7 +66,10 @@ public class LiDarService extends MicroService {
 
         });
         this.subscribeBroadcast(TerminatedBroadcast.class,(e)->{
+            if(e.getMicroService().equals(TimeService.class))
+            {
             this.terminate();
+            }
         });
         this.subscribeBroadcast(TickBroadcast.class, (event)->
         {
@@ -116,7 +119,6 @@ public class LiDarService extends MicroService {
         //
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
-
             this.terminate();
         });
         
@@ -149,7 +151,9 @@ public class LiDarService extends MicroService {
     private void checkIfSelfTermination() {
         if(liDarTracker.getStatus() == STATUS.DOWN&&futureHashMap.isEmpty())
         {
-            sendBroadcast(new TerminatedBroadcast());
+            System.out.println(futureHashMap.toString());
+            System.out.println("LiDarService: "+getName()+" is terminating in time: "+time);
+            sendBroadcast(new TerminatedBroadcast(LiDarService.class));
             this.terminate();
         }
     }

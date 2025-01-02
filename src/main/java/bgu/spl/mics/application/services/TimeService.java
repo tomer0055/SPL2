@@ -29,6 +29,7 @@ public class TimeService extends MicroService {
         this.TickTime = TickTime;
         this.Duration = Duration;
         this.folder = folder;
+       
 
     }
 
@@ -40,20 +41,26 @@ public class TimeService extends MicroService {
 
     @Override
     protected synchronized void initialize() {
-
         while (time < Duration & this.terminated == false) {
             try {
                 Thread.sleep(TickTime * 100);
+                
                 this.sendBroadcast(new TickBroadcast(time));
                 System.out.println("TimeService: " + time);
                 time++;
                 folder.incrementRuntime();
+                if(messageBus.getMicroServiceMap().size() == 2)
+                {
+                    this.sendBroadcast(new TerminatedBroadcast(TimeService.class));
+                    this.terminate();
+                }
+                
                 
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         this.terminate();
-        this.sendBroadcast(new TerminatedBroadcast());
+        this.sendBroadcast(new TerminatedBroadcast(TimeService.class));
     }
 }
