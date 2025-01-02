@@ -14,7 +14,7 @@ public class LidarTerminated implements Event<List<TrackedObject>> {
             this.trackedObjects = trackedObjects;
     
         }
-        public List<TrackedObject> getDetectedObjects(){
+        public List<TrackedObject> getTrackedObjects(){
             return trackedObjects;
         }
     

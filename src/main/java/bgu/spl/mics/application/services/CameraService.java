@@ -95,6 +95,7 @@ public class CameraService extends MicroService {
         this.subscribeEvent(CameraTerminate.class, (event)->
         {
             this.sendEvent(new CameraTerminate(lastFrame));
+
             this.terminate();
         });
         

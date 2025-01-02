@@ -4,22 +4,21 @@ import bgu.spl.mics.Broadcast;
 import bgu.spl.mics.MicroService;
 
 public class CrashedBroadcast implements Broadcast {
+    private String error;
     private MicroService service;
-    private String description;
-    public CrashedBroadcast(MicroService service, String description){
+    public CrashedBroadcast(MicroService service, String error){
         this.service = service;
-        this.description= description;
+        this.error = error;
     }
     public CrashedBroadcast(MicroService service){
         this.service = service;
-        this.description= "the "+MicroService.class.getName()+" has crashed";
+        this.error= "lidar is disconnected";
     }
 
     public MicroService getService(){
         return service;
     }
-    public String getDescription(){
-        return description;
+    public String getError(){
+        return error;
     }
-
 }

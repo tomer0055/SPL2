@@ -23,6 +23,7 @@ import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.LandMark;
+import bgu.spl.mics.application.objects.StampedDetectedObjects;
 import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
 
@@ -36,9 +37,11 @@ import bgu.spl.mics.application.objects.TrackedObject;
 public class FusionSlamService extends MicroService {
 
     private FusionSlam fusionSlam;
-    private int TerminatedServices;
     private StatisticalFolder statisticalFolder;
     private Queue<TrackedObjectsEvent> pendingEvents = new ConcurrentLinkedQueue<>();
+    private List<TrackedObject> LastTrackedObject;
+    private StampedDetectedObjects LastStampedDetectedObject;
+    private Map<String, Object> output;
 
     /**
      * Constructor for FusionSlamService.
@@ -49,9 +52,10 @@ public class FusionSlamService extends MicroService {
     public FusionSlamService(FusionSlam fusionSlam, StatisticalFolder statisticalFolder) {
         super("FusionSlamService");
         this.fusionSlam = fusionSlam;
-        this.TerminatedServices = 0;
         this.statisticalFolder = statisticalFolder;
+        this.output = new LinkedHashMap<>();
         this.initialize();
+
     }
 
     /**
@@ -74,15 +78,21 @@ public class FusionSlamService extends MicroService {
             fusionSlam.updatePoses(poseEvent.getPose());
 
         }));
-        this.subscribeEvent(CameraTerminate.class, (e)->{
-            //e.getDetectedObjects();
-            //take the last frame from the camera
-            //and put in the out file
+        this.subscribeEvent(CameraTerminate.class, (e) -> {
+            this.LastStampedDetectedObject = e.getStampedObjects();
+            if(messageBus.getMicroServiceMap().size() == 1){
+                terminate();
+                // create outfile
+                this.createOutputFile(output);
+            }
         });
-        this.subscribeEvent(LidarTerminated.class, (e)->{
-            //e.getTrackedObjects();
-            //take the last frame from the lidar
-            //and put in the out file
+        this.subscribeEvent(LidarTerminated.class, (e) -> {
+            this.LastTrackedObject = e.getTrackedObjects();
+            if(messageBus.getMicroServiceMap().size() == 1){
+                terminate();
+                // create outfile
+                this.createOutputFile(output);
+            }
         });
 
         this.subscribeBroadcast(TickBroadcast.class, (tickBroadcast) -> {
@@ -104,28 +114,28 @@ public class FusionSlamService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (c) -> {
-
-
-            terminate();
-            this.createOutputFile(c.getDescription());
-
+            output.put("error", c.getError());
+            output.put("faultySensor", c.getService().getName());
+            output.put("lastCamerasFrame", LastStampedDetectedObject);
+            output.put("lastLiDarFrame", LastTrackedObject);
+            output.put("poses", fusionSlam.getPoses());
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (t) -> {
-            if(messageBus.getMicroServiceMap().size() == 1){
+            if (messageBus.getMicroServiceMap().size() == 1) {
                 terminate();
                 // create outfile
-                this.createOutputFile("");
+                this.createOutputFile(output);
             }
-            
+
         });
     }
 
-    public void createOutputFile(String description) {
-        Map<String, Integer> statistics = Map.of(
-                "systemRuntime", statisticalFolder.getRuntime(),
-                "numDetectedObjects", statisticalFolder.getNumDetectedObjects(),
-                "numTrackedObjects", statisticalFolder.getNumTrackedObjects(),
-                "numLandmarks", statisticalFolder.getNumLandmarks());
+    public void createOutputFile(Map<String, Object> output) {
+        Map<String, Integer> statistics = new LinkedHashMap<>();
+        statistics.put("systemRuntime", statisticalFolder.getRuntime());
+        statistics.put("numDetectedObjects", statisticalFolder.getNumDetectedObjects());
+        statistics.put("numTrackedObjects", statisticalFolder.getNumTrackedObjects());
+        statistics.put("numLandmarks", statisticalFolder.getNumLandmarks());
         List<Map<String, Object>> landmarks = new ArrayList<>();
         for (LandMark landmark : fusionSlam.getLandMarks().values()) {
             landmarks.add(Map.of(
@@ -133,12 +143,7 @@ public class FusionSlamService extends MicroService {
                     "description", landmark.getDescription(),
                     "coordinates", List.of(landmark.getPoints())));
         }
-        if (description.equals("")) {
-            description = "Terminated successfully";
-        }
 
-        Map<String, Object> output = new LinkedHashMap<>();
-        output.put("description", description);
         output.put("statistics", statistics);
         output.put("landMarks", landmarks);
         String outputPath = "output_file.json"; // Output file path

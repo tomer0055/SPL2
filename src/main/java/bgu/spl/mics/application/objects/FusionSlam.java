@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.objects;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -27,6 +29,10 @@ public class FusionSlam {
     public static FusionSlam getInstance() {
         return FusionSlamHolder.instance;
     }
+    public List<Pose> getPoses(){
+        return new ArrayList<Pose>(poses.values());
+    }
+    
 
     /**
      * Updates the global map with a new landmark.
