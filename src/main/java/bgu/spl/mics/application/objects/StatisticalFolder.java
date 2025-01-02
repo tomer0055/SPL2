@@ -23,7 +23,6 @@ public class StatisticalFolder {
         numDetectedObjects++;
     }
     public void incrementTrackedObjects(){
-        System.out.println("incrementTrackedObjects-----------------------------");
         numTrackedObjects++;
     }
     public void incrementLandmarks(){

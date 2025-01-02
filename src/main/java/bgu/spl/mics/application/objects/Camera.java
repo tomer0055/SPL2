@@ -20,6 +20,7 @@ public class Camera {
     int ferequency;
     STATUS status;
     String camera_key;
+    int maxTime;
     public Camera( int id, int ferequency,String camera_key, String cameraDATAPath) {
         this.id = id;
         this.ferequency = ferequency;
@@ -51,6 +52,7 @@ public StampedDetectedObjects getDetectedObjectsByTime(int currentTime) {
             }
             Type dataType = new TypeToken<List<StampedDetectedObjects>>() {}.getType();
             List<StampedDetectedObjects> objs = gson.fromJson(cameraArray, dataType);
+            maxTime = objs.get(objs.size()-1).getTime();
 
             
             for (StampedDetectedObjects obj : objs ) {
@@ -58,6 +60,7 @@ public StampedDetectedObjects getDetectedObjectsByTime(int currentTime) {
                     resTime.add(obj);
                 }
             }
+            changeStatusIFDataBaseFinish(currentTime);
             if(resTime.size()>1){
                 System.err.println("more than one StampedDetectedObjects with the same time");
             }
@@ -87,6 +90,11 @@ public StampedDetectedObjects getDetectedObjectsByTime(int currentTime) {
     }
     public String getCamera_key() {
         return camera_key;
+    }
+    private void changeStatusIFDataBaseFinish(int time) {
+        if(time == maxTime) {
+            this.status = STATUS.DOWN;
+        }
     }
 
 

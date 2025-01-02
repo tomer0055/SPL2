@@ -49,18 +49,21 @@ public class LiDarWorkerTracker {
         TrackedObject resObj = dataBase.getTrackedObjectByTimeAndId(currnetObjTime, detectedObject.getId());
         if(resObj!=null)
         {
-
+            resObj.setDescription(detectedObject.getDescription());
             trackedObjects.add(resObj);
         }
-        else
-        {
-            System.out.println("ERROR: TrackedObject is null&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-        }
+      
         
        
     }
     detectError(trackedObjects);
     lastTrackedObjects.addAll(trackedObjects);
+    dataBase.changeStatus(currnetObjTime);
+    //check if the data base is Finished if so the status is down
+    if(dataBase.getStatus())
+    {
+        this.status = STATUS.DOWN;
+    }
     return trackedObjects;
    }
 

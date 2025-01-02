@@ -82,7 +82,6 @@ public class FusionSlamService extends MicroService {
 
                     itr.remove();
                     for (TrackedObject object : event.getFuture().get()) {
-                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + object.getDescription());
                         fusionSlam.updateLandMarks(object, statisticalFolder);
                     }
                     complete(event, event.getFuture().get());
@@ -98,12 +97,12 @@ public class FusionSlamService extends MicroService {
 
         });
         this.subscribeBroadcast(TerminatedBroadcast.class, (t) -> {
-            if (messageBus.getMicroServiceMap().size() == 2) {
+            if(messageBus.getMicroServiceMap().size() == 1){
                 terminate();
                 // create outfile
                 this.createOutputFile("");
-
             }
+            
         });
     }
 

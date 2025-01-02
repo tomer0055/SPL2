@@ -55,9 +55,8 @@ public class CameraService extends MicroService {
             time = event.getTick();
             StampedDetectedObjects res = camera.getDetectedObjectsByTime(time);
             //check if error detected
-            
-            detectErorr(res);
             if(res != null && res.getDetectedObjects().length != 0){
+                detectErorr(res);
                 detectedObjects.add(res);
                 for (int i=0; i<res.getDetectedObjects().length; i++){
                     folder.incrementDetectedObjects();
@@ -80,18 +79,12 @@ public class CameraService extends MicroService {
                 
             } 
             this.resolveFutures(time);
+            checkIfSelfTermination();
+
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
             this.terminate();
-        });
-        this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
-        {
-            if(messageBus.getMicroServiceMap().isEmpty())
-            {
-                //folder.writeToFile();
-                this.terminate();
-            }
         });
         
 
@@ -107,7 +100,7 @@ public class CameraService extends MicroService {
             for (StampedDetectedObjects stampedDetectedObjects : detectedObjects) {
                 if(stampedDetectedObjects.getTime()==i)
                 {
-                    System.out.println("CameraService: "+getName()+" resolved future at time: "+time);
+                   // System.out.println("CameraService: "+getName()+" resolved future at time: "+time);
                     futureHashMap.get(i).resolve(stampedDetectedObjects);
                     futureHashMap.remove(i);
 
@@ -132,5 +125,12 @@ public class CameraService extends MicroService {
             }
         }
         
+    }
+    private void checkIfSelfTermination() {
+        if(camera.getStatus() == STATUS.DOWN && futureHashMap.isEmpty())
+        {
+            this.sendBroadcast(new TerminatedBroadcast());
+            this.terminate();
+        }
     }
 }
