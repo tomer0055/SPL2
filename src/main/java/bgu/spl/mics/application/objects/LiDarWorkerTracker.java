@@ -58,6 +58,12 @@ public class LiDarWorkerTracker {
     }
     detectError(trackedObjects);
     lastTrackedObjects.addAll(trackedObjects);
+    dataBase.changeStatus(currnetObjTime);
+    //check if the data base is Finished if so the status is down
+    if(dataBase.getStatus())
+    {
+        this.status = STATUS.DOWN;
+    }
     return trackedObjects;
    }
 

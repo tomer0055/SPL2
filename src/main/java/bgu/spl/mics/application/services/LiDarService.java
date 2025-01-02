@@ -11,6 +11,7 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
@@ -78,7 +79,7 @@ public class LiDarService extends MicroService {
                     {
                         CrashedBroadcast e = new CrashedBroadcast(this, "LidarWorker"+liDarTracker.getId()+" has crashed ");
                         this.sendBroadcast(e);
-                        System.out.println("LiDarService: "+getName()+" detected error: "+" at time: "+time);
+                        //System.out.println("LiDarService: "+getName()+" detected error: "+" at time: "+time);
                         this.terminate();
                     }
                     TrackedObjectsEvent e = new TrackedObjectsEvent(tr);
@@ -90,8 +91,11 @@ public class LiDarService extends MicroService {
                     messageBus.complete(obj,obj.getFuture().get());
 
                 }
-                resolveFutures(time);
+                
             }
+            resolveFutures(time);
+            checkIfSelfTermination();
+ 
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -101,6 +105,7 @@ public class LiDarService extends MicroService {
         //
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
+
             this.terminate();
         });
         
@@ -114,13 +119,22 @@ public class LiDarService extends MicroService {
             if(futureHashMap.containsKey(i) && i + liDarTracker.getFrequency() <= tick) {
                 
                 statisticalFolder.incrementTrackedObjects();
-                futureHashMap.get(i).resolve(trackedObjects.poll());
+                List<TrackedObject> t= trackedObjects.poll();
+                for (TrackedObject trackedObject : t) {
+                    System.out.println(trackedObject.toString());
+                }
+                futureHashMap.get(i).resolve(t);
                 futureHashMap.remove(i);
             }
         }
     }
-        //subscribe to DetectObjectsEvent
-        //subscribe to TickBroadcast
+    private void checkIfSelfTermination() {
+        if(liDarTracker.getStatus() == STATUS.DOWN&&futureHashMap.isEmpty())
+        {
+            sendBroadcast(new TerminatedBroadcast());
+            this.terminate();
+        }
+    }
     }
 
 

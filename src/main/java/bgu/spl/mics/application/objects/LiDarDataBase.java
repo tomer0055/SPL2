@@ -24,6 +24,8 @@ public class LiDarDataBase {
      */
     private static LiDarDataBase instance;
     private List<StampedCloudPoints> StampedCloudPoint;
+    private int maxTime ;
+    private Boolean isDone = false;
 
     private LiDarDataBase(String filePath) {
         Gson gson = new Gson();
@@ -31,7 +33,8 @@ public class LiDarDataBase {
             Type dataType = new TypeToken<List<StampedCloudPoints>>() {
             }.getType();
             StampedCloudPoint = gson.fromJson(reader, dataType);
-            // System.out.println(StampedCloudPoint);
+            maxTime = StampedCloudPoint.get(StampedCloudPoint.size()-1).getTime();
+            //System.out.println(StampedCloudPoint);
         }
 
         catch (IOException e) {
@@ -116,17 +119,26 @@ public class LiDarDataBase {
         int i = 0;
         for (List<Double> obj : stampedCloudPoints.getPoints()) {
 
-                int x = obj.get(0).intValue();
-                int y = obj.get(1).intValue();
+                double x = obj.get(0);
+                double y = obj.get(1);
                 CloudPoint cloudPoint = new CloudPoint(x, y);
                 points[i] = cloudPoint;
-                i++;
-                
-            
+                i++; 
         }
         int time = stampedCloudPoints.getTime();
         trackedObjects = new TrackedObject(time,stampedCloudPoints.getId(),  points,"");
         return trackedObjects;
     }
+public void changeStatus(int current_time)
+{
+    if(current_time == maxTime)
+    {
+        isDone = true;
+    }
 
+}
+public Boolean getStatus()
+{
+    return isDone;
+}
 }

@@ -79,17 +79,12 @@ public class CameraService extends MicroService {
                 
             } 
             this.resolveFutures(time);
+            checkIfSelfTermination();
+
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
             this.terminate();
-        });
-        this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
-        {
-        
-            
-                this.terminate();
-            
         });
         
 
@@ -105,7 +100,7 @@ public class CameraService extends MicroService {
             for (StampedDetectedObjects stampedDetectedObjects : detectedObjects) {
                 if(stampedDetectedObjects.getTime()==i)
                 {
-                    System.out.println("CameraService: "+getName()+" resolved future at time: "+time);
+                   // System.out.println("CameraService: "+getName()+" resolved future at time: "+time);
                     futureHashMap.get(i).resolve(stampedDetectedObjects);
                     futureHashMap.remove(i);
 
@@ -130,5 +125,12 @@ public class CameraService extends MicroService {
             }
         }
         
+    }
+    private void checkIfSelfTermination() {
+        if(camera.getStatus() == STATUS.DOWN && futureHashMap.isEmpty())
+        {
+            this.sendBroadcast(new TerminatedBroadcast());
+            this.terminate();
+        }
     }
 }
