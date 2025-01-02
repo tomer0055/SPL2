@@ -94,10 +94,17 @@
     }
   ],
   "statistics": {
+<<<<<<< HEAD
+    "numLandmarks": 0,
+    "numDetectedObjects": 1,
+    "systemRuntime": 14,
+    "numTrackedObjects": 0
+=======
     "systemRuntime": 15,
     "numDetectedObjects": 9,
     "numTrackedObjects": 9,
     "numLandmarks": 7
+>>>>>>> d7cd71986d270c0a2862249e3c6567a6199b0041
   },
   "landMarks": [
     {

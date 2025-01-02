@@ -21,9 +21,9 @@ import bgu.spl.mics.application.messages.PoseEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
-import bgu.spl.mics.application.objects.DetectedObject;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.LandMark;
+import bgu.spl.mics.application.objects.StampedDetectedObjects;
 import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
 
@@ -40,7 +40,7 @@ public class FusionSlamService extends MicroService {
     private StatisticalFolder statisticalFolder;
     private Queue<TrackedObjectsEvent> pendingEvents = new ConcurrentLinkedQueue<>();
     private List<TrackedObject> LastTrackedObject;
-    private List<DetectedObject> LastDetectedObject;
+    private StampedDetectedObjects LastStampedDetectedObject;
     private Map<String, Object> output;
 
     /**
@@ -79,7 +79,7 @@ public class FusionSlamService extends MicroService {
 
         }));
         this.subscribeEvent(CameraTerminate.class, (e) -> {
-            this.LastDetectedObject = e.getDetectedObjects();
+            this.LastStampedDetectedObject = e.getStampedObjects();
             if(messageBus.getMicroServiceMap().size() == 1){
                 terminate();
                 // create outfile
@@ -116,7 +116,7 @@ public class FusionSlamService extends MicroService {
         this.subscribeBroadcast(CrashedBroadcast.class, (c) -> {
             output.put("error", c.getError());
             output.put("faultySensor", c.getService().getName());
-            output.put("lastCamerasFrame", LastDetectedObject);
+            output.put("lastCamerasFrame", LastStampedDetectedObject);
             output.put("lastLiDarFrame", LastTrackedObject);
             output.put("poses", fusionSlam.getPoses());
         });
