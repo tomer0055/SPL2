@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.objects;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,9 +31,7 @@ public class LandMark {
     }
     public void updateLocation(CloudPoint[] newPoint){
         points.clear();
-        for (CloudPoint point : newPoint){
-            points.add(point);
-        }
+        points.addAll(Arrays.asList(newPoint));
     }
 
 
