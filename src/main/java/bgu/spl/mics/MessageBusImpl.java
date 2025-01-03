@@ -3,6 +3,8 @@ package bgu.spl.mics;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
+
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus
  * interface.
@@ -32,7 +34,7 @@ public class MessageBusImpl implements MessageBus {
 																								// list of messages that
 																								// it should handle
 	private ConcurrentHashMap<Event, Future> events; //
-	private Boolean terminate = false;
+	private Boolean terminateTime = false;
 
 	private MessageBusImpl() {
 	};
@@ -84,6 +86,13 @@ public synchronized <T> void subscribeEvent(Class<? extends Event<T>> type, Micr
 	@Override
 public synchronized void sendBroadcast(Broadcast b) {
     ConcurrentLinkedQueue<MicroService> microServices = broadcastMap.get(b.getClass());
+	if(b.getClass().equals(TerminatedBroadcast.class)){
+		TerminatedBroadcast  s=(TerminatedBroadcast)b;
+		System.out.println(s.getMicroService().getName()+" +++++++++++++++++++++");
+	}
+	
+
+
     if (microServices != null) {
         for (MicroService m : microServices) {
             ConcurrentLinkedQueue<Message> queue = microServiceMap.get(m);
@@ -178,13 +187,13 @@ public synchronized Message awaitMessage(MicroService m) throws InterruptedExcep
 	public ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> getMicroServiceMap() {
 		return microServiceMap;
 	}
-	public Boolean isterminated() {
-		return terminate;
+
+	public Boolean isterminatedT() {
+		return terminateTime;
 	}
 
-	public void terminate() {
-		// TODO Auto-generated method stub
-terminate = true;
+	public void terminateT() {
+       terminateTime = true;
 	}
 
     

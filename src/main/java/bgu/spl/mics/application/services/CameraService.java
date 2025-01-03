@@ -10,7 +10,6 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CameraTerminate;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
-import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
@@ -55,7 +54,9 @@ public class CameraService extends MicroService {
     protected void initialize() {
         this.register();
         this.subscribeBroadcast(TickBroadcast.class, (event)->{
+
             time = event.getTick();
+
             StampedDetectedObjects res = camera.getDetectedObjectsByTime(time);
             //check if error detected
             if(res != null && res.getDetectedObjects().length != 0){
@@ -77,26 +78,23 @@ public class CameraService extends MicroService {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                this.resolveFutures(time);
             } 
-           
+          
             checkIfSelfTermination();
+            this.resolveFutures(time);
 
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->
         {
             this.sendEvent(new CameraTerminate(lastFrame));
-            messageBus.terminate();
+            messageBus.terminateT();
             this.terminate();
         });
-        this.subscribeBroadcast(TerminatedBroadcast.class, (event)->
-        {
-            this.terminate();
-        });
+       
         this.subscribeEvent(CameraTerminate.class, (event)->
         {
             this.sendEvent(new CameraTerminate(lastFrame));
-            messageBus.terminate();
+            messageBus.terminateT();
             this.terminate();
         });
         
@@ -131,9 +129,10 @@ public class CameraService extends MicroService {
         }
         for (DetectedObject detectedObject : objs.getDetectedObjects()) {
             if (detectedObject != null && detectedObject.getId().equals("ERROR")) {
+                this.messageBus.terminateT();
                 DetectedObject errorObj = detectedObject;
                 camera.setStatus(STATUS.ERROR);
-                this.messageBus.terminate();
+               
                 this.sendEvent(new CameraTerminate(lastFrame));
                 
                 CrashedBroadcast e = new CrashedBroadcast(this,errorObj.getDescription());

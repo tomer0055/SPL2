@@ -79,6 +79,7 @@ public class FusionSlamService extends MicroService {
 
         }));
         this.subscribeEvent(CameraTerminate.class, (e) -> {
+            messageBus.terminateT();
             this.LastStampedDetectedObject = e.getStampedObjects();
             output.put("lastCamerasFrame", LastStampedDetectedObject);
             if(messageBus.getMicroServiceMap().size() == 1){
@@ -88,6 +89,7 @@ public class FusionSlamService extends MicroService {
             }
         });
         this.subscribeEvent(LidarTerminated.class, (e) -> {
+            messageBus.terminateT();
             this.LastTrackedObject = e.getTrackedObjects();
             output.put("lastLiDarFrame", LastTrackedObject);
             if(messageBus.getMicroServiceMap().size() == 1){
@@ -112,6 +114,10 @@ public class FusionSlamService extends MicroService {
                     complete(event, event.getFuture().get());
                 }
 
+            }if(messageBus.getMicroServiceMap().size() == 1& pendingEvents.isEmpty()){
+                terminate();
+                // create outfile
+                this.createOutputFile(output);
             }
         });
 
@@ -122,12 +128,10 @@ public class FusionSlamService extends MicroService {
         });
         
         this.subscribeBroadcast(TerminatedBroadcast.class, (t) -> {
-            if (messageBus.getMicroServiceMap().size() <= 2) {
+            if (messageBus.getMicroServiceMap().size() == 1& pendingEvents.isEmpty()) {
                 terminate();
-                // create outfile
-               
+                // create outfile               
                 this.createOutputFile(output);
-                this.messageBus.terminate();
                
             }
 

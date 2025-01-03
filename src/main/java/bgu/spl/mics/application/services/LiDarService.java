@@ -12,7 +12,6 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.LidarTerminated;
-import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.DetectedObject;
@@ -67,13 +66,11 @@ public class LiDarService extends MicroService {
 
 
         });
-        this.subscribeBroadcast(TerminatedBroadcast.class,(e)->{
-            this.terminate();
-        });
         this.subscribeBroadcast(TickBroadcast.class, (event)->
         {
             time = event.getTick();
-           
+        
+
             Iterator<DetectObjectsEvent> iterator = pendingEvents.iterator();
             while(iterator.hasNext())
             {
@@ -90,13 +87,10 @@ public class LiDarService extends MicroService {
                    
                     if(liDarTracker.getStatus() == STATUS.ERROR)
                     {
-                        messageBus.terminate();
+                        messageBus.terminateT();
                         this.sendEvent(new LidarTerminated(lastTrackedObjects));
-                        
                         CrashedBroadcast e = new CrashedBroadcast(this);
-                        
                         this.sendBroadcast(e);
-                        
                         //System.out.println("LiDarService: "+getName()+" detected error: "+" at time: "+time);
                         this.terminate();
                     }
@@ -111,9 +105,10 @@ public class LiDarService extends MicroService {
                 }
                 
             }
-            resolveFutures(time);
+           
             checkIfSelfTermination();
- 
+            resolveFutures(time);
+            
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -149,8 +144,6 @@ public class LiDarService extends MicroService {
         {
             System.out.println(futureHashMap.toString());
             System.out.println("LiDarService: "+getName()+" is terminating in time: "+time);
-            
-            sendBroadcast(new TerminatedBroadcast(LiDarService.class));
             this.terminate();
         }
     }
