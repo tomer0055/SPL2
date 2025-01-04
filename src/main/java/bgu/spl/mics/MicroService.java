@@ -168,7 +168,7 @@ public abstract class MicroService implements Runnable {
     @Override
     public final void run() {
         if(this.name.equals("TimeService")){
-            System.out.println("TimeService registered");
+            //System.out.println("TimeService registered");
             this.register();
             initialize();
         }

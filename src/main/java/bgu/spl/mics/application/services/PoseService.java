@@ -56,7 +56,6 @@ public class PoseService extends MicroService {
         });
        
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast) -> {
-            messageBus.terminate();
             terminate();
         });
     }

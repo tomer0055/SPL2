@@ -70,19 +70,20 @@ public class FusionSlamService extends MicroService {
     @Override
     protected void initialize() {
         this.register();
-        System.out.println(getName() + " subscribed to TrackedObjectsEvent");
+        //System.out.println(getName() + " subscribed to TrackedObjectsEvent");
         this.subscribeEvent(TrackedObjectsEvent.class, ((event) -> {
-            System.out.println(getName() + " received TrackedObjectsEvent");
+        //    System.out.println(getName() + " received TrackedObjectsEvent");
             pendingEvents.add(event);
         }));
 
-        System.out.println(getName() + " subscribed to PoseEvent");
+        //System.out.println(getName() + " subscribed to PoseEvent");
         this.subscribeEvent(PoseEvent.class, ((poseEvent) -> {
-            System.out.println(getName() + " received PoseEvent");
+         //   System.out.println(getName() + " received PoseEvent");
             fusionSlam.updatePoses(poseEvent.getPose());
 
         }));
         this.subscribeEvent(CameraTerminate.class, (e) -> {
+            messageBus.terminateT();
             this.LastStampedDetectedObject = e.getStampedObjects();
             if (messageBus.getMicroServiceMap().size() == 1) {
                 output.put("error", error);
@@ -96,6 +97,7 @@ public class FusionSlamService extends MicroService {
             }
         });
         this.subscribeEvent(LidarTerminated.class, (e) -> {
+            messageBus.terminateT();
             this.LastTrackedObject = e.getTrackedObjects();
             if (messageBus.getMicroServiceMap().size() == 1) {
                 output.put("error", error);
@@ -124,6 +126,10 @@ public class FusionSlamService extends MicroService {
                     complete(event, event.getFuture().get());
                 }
 
+            }if(messageBus.getMicroServiceMap().size() == 1& pendingEvents.isEmpty()){
+                terminate();
+                // create outfile
+                this.createOutputFile(output);
             }
         });
 
@@ -134,12 +140,10 @@ public class FusionSlamService extends MicroService {
         });
         
         this.subscribeBroadcast(TerminatedBroadcast.class, (t) -> {
-            if (messageBus.getMicroServiceMap().size() <= 2) {
+            if (messageBus.getMicroServiceMap().size() == 1& pendingEvents.isEmpty()) {
                 terminate();
-                // create outfile
-               
+                // create outfile               
                 this.createOutputFile(output);
-                this.messageBus.terminate();
                
             }
 
@@ -167,9 +171,9 @@ public class FusionSlamService extends MicroService {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(outputPath)) {
             gson.toJson(output, writer);
-            System.out.println("Output file written to: " + outputPath);
+           // System.out.println("Output file written to: " + outputPath);
         } catch (IOException e) {
-            System.err.println("Error writing the output file: " + e.getMessage());
+           // System.err.println("Error writing the output file: " + e.getMessage());
         }
     }
 }

@@ -77,7 +77,7 @@ public class GurionRockRunner {
 
             
 
-            System.out.println("\nLiDAR Configurations:");
+           // System.out.println("\nLiDAR Configurations:");
             for (int i = 0; i < lidarConfigs.size(); i++) {
                 JsonObject lidarWorker = lidarConfigs.get(i).getAsJsonObject();
                 LiDarList.add(new LiDarWorkerTracker(lidarWorker.get("id").getAsInt(), lidarWorker.get("frequency").getAsInt(),lidarDataPath));
@@ -88,13 +88,13 @@ public class GurionRockRunner {
             tickTime = config.get("TickTime").getAsInt();
             duration = config.get("Duration").getAsInt();
 
-            System.out.println("\nOther Configurations:");
-            System.out.println("  Pose Data Path: " + poseJsonFile);
-            System.out.println("  Tick Time: " + tickTime);
-            System.out.println("  Duration: " + duration);
+          //  System.out.println("\nOther Configurations:");
+          //  System.out.println("  Pose Data Path: " + poseJsonFile);
+          //  System.out.println("  Tick Time: " + tickTime);
+          //  System.out.println("  Duration: " + duration);
 
         } catch (IOException e) {
-            System.err.println("Error reading the configuration file: " + e.getMessage());
+          // System.err.println("Error reading the configuration file: " + e.getMessage());
         }
         // TODO: Initialize system components and services.
         StatisticalFolder folder = new StatisticalFolder();

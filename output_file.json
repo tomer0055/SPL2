@@ -114,7 +114,7 @@
     }
   ],
   "statistics": {
-    "systemRuntime": 15,
+    "systemRuntime": 14,
     "numDetectedObjects": 9,
     "numTrackedObjects": 9,
     "numLandmarks": 7
