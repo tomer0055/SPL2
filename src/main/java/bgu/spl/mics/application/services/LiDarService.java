@@ -59,10 +59,10 @@ public class LiDarService extends MicroService {
     protected  void  initialize() {
         this.register();
 
-        System.out.println(getName() + " subscribed to DetectObjectsEvent");            
+        //System.out.println(getName() + " subscribed to DetectObjectsEvent");            
         this.subscribeEvent(DetectObjectsEvent.class, (event)->{
             pendingEvents.add(event);
-            System.out.println(getName() + " Recived Detected Object on time " +event.getTime());            
+           // System.out.println(getName() + " Recived Detected Object on time " +event.getTime());            
 
 
         });
@@ -97,7 +97,7 @@ public class LiDarService extends MicroService {
                     TrackedObjectsEvent e = new TrackedObjectsEvent(tr);
                     trackedObjects.add(tr);
                     Future<List<TrackedObject>> f =  this.sendEvent(e);
-                    System.out.println("LiDarService: "+getName()+" detected "+tr.size()+" objects at time: "+time);
+                   // System.out.println("LiDarService: "+getName()+" detected "+tr.size()+" objects at time: "+time);
                     e.setFuture(f);
                     this.addFuture(f);
                     messageBus.complete(obj,givenObjs);
@@ -142,8 +142,8 @@ public class LiDarService extends MicroService {
     private void checkIfSelfTermination() {
         if(liDarTracker.getStatus() == STATUS.DOWN&&futureHashMap.isEmpty())
         {
-            System.out.println(futureHashMap.toString());
-            System.out.println("LiDarService: "+getName()+" is terminating in time: "+time);
+            //System.out.println(futureHashMap.toString());
+            //System.out.println("LiDarService: "+getName()+" is terminating in time: "+time);
             this.terminate();
         }
     }

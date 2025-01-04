@@ -56,7 +56,7 @@ public synchronized <T> void subscribeEvent(Class<? extends Event<T>> type, Micr
     if (!eventMap.get(type).contains(m)) {
         eventMap.get(type).add(m);
     } else {
-        System.out.println(m.getName() + " is already subscribed to event: " + type.getSimpleName());
+       // System.out.println(m.getName() + " is already subscribed to event: " + type.getSimpleName());
     }
 }
 
@@ -79,7 +79,7 @@ public synchronized <T> void subscribeEvent(Class<? extends Event<T>> type, Micr
 		}
 		else{
 			// Handle the case where the event is not in the events map
-			System.err.println("Event not found in events map: " + e.getClass().getName());
+			//System.err.println("Event not found in events map: " + e.getClass().getName());
 		}
 	}
 
@@ -88,7 +88,6 @@ public synchronized void sendBroadcast(Broadcast b) {
     ConcurrentLinkedQueue<MicroService> microServices = broadcastMap.get(b.getClass());
 	if(b.getClass().equals(TerminatedBroadcast.class)){
 		TerminatedBroadcast  s=(TerminatedBroadcast)b;
-		System.out.println(s.getMicroService().getName()+" +++++++++++++++++++++");
 	}
 	
 
@@ -99,12 +98,12 @@ public synchronized void sendBroadcast(Broadcast b) {
             if (queue != null) {
                 queue.add(b);
 			            } else {
-                System.err.println("No queue found for MicroService: " + m.getName());
+               // System.err.println("No queue found for MicroService: " + m.getName());
             }
         }
         notifyAll();
     } else {
-        System.err.println("No subscribers for broadcast: " + b.getClass().getName());
+        //System.err.println("No subscribers for broadcast: " + b.getClass().getName());
     }
 }
 
@@ -123,19 +122,19 @@ public synchronized void sendBroadcast(Broadcast b) {
 						events.put(e, future);
 						return future;
 					} else {
-						System.err.println("No queue found for MicroService: " + m.getName());
+					//	System.err.println("No queue found for MicroService: " + m.getName());
 					}
 				} catch (Exception ex) {
-					System.err.println("Exception in sendEvent: " + ex.getMessage());
+					//System.err.println("Exception in sendEvent: " + ex.getMessage());
 				} finally {
 					if (m != null) {
 						microServices.add(m);
-						System.out.println(m.getName() + " was re-added to the " + e.getClass().getSimpleName() + " queue.");
+					//	System.out.println(m.getName() + " was re-added to the " + e.getClass().getSimpleName() + " queue.");
 					}
 				}
 			}
 		}
-		System.err.println("No subscribers for event: " + e.getClass().getName());
+		//System.err.println("No subscribers for event: " + e.getClass().getName());
 		return null;
 	}
 
@@ -164,7 +163,7 @@ public synchronized Message awaitMessage(MicroService m) throws InterruptedExcep
     ConcurrentLinkedQueue<Message> queue = microServiceMap.get(m);
 
     if (queue == null) {
-        throw new IllegalStateException("MicroService not registered: " + m.getName());
+		//System.out.println(m.getName() + " has no queue");
     }
 
     // Clean up stale or completed events
@@ -175,10 +174,10 @@ public synchronized Message awaitMessage(MicroService m) throws InterruptedExcep
     }
 
     Message message = queue.poll(); // Retrieve and remove the head of the queue
-	System.out.println(m.getName() + " fetch message: " + message.getClass().getSimpleName());
+	//System.out.println(m.getName() + " fetch message: " + message.getClass().getSimpleName());
 
     if (message == null) {
-		System.out.println(m.getName() + " received null message");
+		//System.out.println(m.getName() + " received null message");
 	}
    
 

@@ -66,15 +66,15 @@ public class FusionSlamService extends MicroService {
     @Override
     protected void initialize() {
         this.register();
-        System.out.println(getName() + " subscribed to TrackedObjectsEvent");
+        //System.out.println(getName() + " subscribed to TrackedObjectsEvent");
         this.subscribeEvent(TrackedObjectsEvent.class, ((event) -> {
-            System.out.println(getName() + " received TrackedObjectsEvent");
+        //    System.out.println(getName() + " received TrackedObjectsEvent");
             pendingEvents.add(event);
         }));
 
-        System.out.println(getName() + " subscribed to PoseEvent");
+        //System.out.println(getName() + " subscribed to PoseEvent");
         this.subscribeEvent(PoseEvent.class, ((poseEvent) -> {
-            System.out.println(getName() + " received PoseEvent");
+         //   System.out.println(getName() + " received PoseEvent");
             fusionSlam.updatePoses(poseEvent.getPose());
 
         }));
@@ -158,9 +158,9 @@ public class FusionSlamService extends MicroService {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(outputPath)) {
             gson.toJson(output, writer);
-            System.out.println("Output file written to: " + outputPath);
+           // System.out.println("Output file written to: " + outputPath);
         } catch (IOException e) {
-            System.err.println("Error writing the output file: " + e.getMessage());
+           // System.err.println("Error writing the output file: " + e.getMessage());
         }
     }
 }

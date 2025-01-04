@@ -66,7 +66,7 @@ public class CameraService extends MicroService {
 
                 DetectObjectsEvent event1 = new DetectObjectsEvent(res,res.getTime());
                 Future<StampedDetectedObjects> future = sendEvent(event1);
-                System.out.println("CameraService: "+getName()+" detected "+res.getDetectedObjects().length+" objects at time: "+time);
+               // System.out.println("CameraService: "+getName()+" detected "+res.getDetectedObjects().length+" objects at time: "+time);
                 if(future != null)
                 {
                     event1.setFuture(future);
@@ -124,7 +124,7 @@ public class CameraService extends MicroService {
     }
     private void  detectErorr(StampedDetectedObjects objs) {
         if (objs == null || objs.getDetectedObjects() == null) {
-            System.err.println("Warning: StampedDetectedObjects or DetectedObjects is null");
+          //  System.err.println("Warning: StampedDetectedObjects or DetectedObjects is null");
              
         }
         for (DetectedObject detectedObject : objs.getDetectedObjects()) {
@@ -136,7 +136,7 @@ public class CameraService extends MicroService {
                 this.sendEvent(new CameraTerminate(lastFrame));
                 
                 CrashedBroadcast e = new CrashedBroadcast(this,errorObj.getDescription());
-                System.out.println("CameraService: "+getName()+" detected error: "+errorObj.getDescription() + " at time: "+time);
+              //  System.out.println("CameraService: "+getName()+" detected error: "+errorObj.getDescription() + " at time: "+time);
                 this.sendBroadcast(e);
             }
         }
@@ -145,8 +145,8 @@ public class CameraService extends MicroService {
     private void checkIfSelfTermination() {
         if(camera.getStatus() == STATUS.DOWN && futureHashMap.isEmpty())
         {
-            System.out.println(futureHashMap.toString());
-            System.out.println("CameraService: "+getName()+" terminated in time: "+time);
+          //  System.out.println(futureHashMap.toString());
+          //System.out.println("CameraService: "+getName()+" terminated in time: "+time);
             this.terminate();
         }
     }

@@ -56,7 +56,7 @@ public class TimeService extends MicroService {
                     
                 }
                 this.sendBroadcast(new TickBroadcast(time));
-                System.out.println("TimeService: " + time);
+              //  System.out.println("TimeService: " + time);
                 time++;
                 folder.incrementRuntime();
                
