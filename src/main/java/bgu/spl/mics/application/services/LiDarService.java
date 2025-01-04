@@ -69,7 +69,6 @@ public class LiDarService extends MicroService {
         this.subscribeBroadcast(TickBroadcast.class, (event)->
         {
             time = event.getTick();
-        
 
             Iterator<DetectObjectsEvent> iterator = pendingEvents.iterator();
             while(iterator.hasNext())
@@ -105,10 +104,10 @@ public class LiDarService extends MicroService {
                 }
                 
             }
-           
+            
             checkIfSelfTermination();
             resolveFutures(time);
-            
+
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
