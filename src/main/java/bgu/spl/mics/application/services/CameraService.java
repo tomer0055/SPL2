@@ -54,6 +54,7 @@ public class CameraService extends MicroService {
     protected void initialize() {
         this.register();
         this.subscribeBroadcast(TickBroadcast.class, (event)->{
+           
 
             time = event.getTick();
 
@@ -82,6 +83,7 @@ public class CameraService extends MicroService {
           
             checkIfSelfTermination();
             this.resolveFutures(time);
+
 
         });
         this.subscribeBroadcast(CrashedBroadcast.class, (event)->

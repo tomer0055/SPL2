@@ -194,6 +194,11 @@ public synchronized Message awaitMessage(MicroService m) throws InterruptedExcep
 	public void terminateT() {
        terminateTime = true;
 	}
+	//for testing
+	public ConcurrentHashMap<Class<? extends Broadcast>, ConcurrentLinkedQueue<MicroService>> getBroadCastMap() {
+		return broadcastMap;
+	}
+
 
     
 }

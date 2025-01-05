@@ -126,10 +126,6 @@ public class FusionSlamService extends MicroService {
                     complete(event, event.getFuture().get());
                 }
 
-            }if(messageBus.getMicroServiceMap().size() == 1& pendingEvents.isEmpty()){
-                terminate();
-                // create outfile
-                this.createOutputFile(output);
             }
         });
 
