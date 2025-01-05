@@ -48,6 +48,19 @@ public class GurionRockRunner {
         }
         String poseJsonFile="";
         String configFilePath = args[0];
+        //make sure it will work if the files are on the same folder as the config
+        String path="";
+        if(configFilePath.contains("/"))
+        {
+            String[] p =configFilePath.split("/");
+            p[p.length-1]="";
+            for (String s : p) {
+                if(!s.isEmpty())
+                {
+                path = s + path+"/" ;
+                }
+            }
+        }
         List<Camera> camerasList = new ArrayList<>();
         List<LiDarWorkerTracker> LiDarList = new ArrayList<>();
         int tickTime=0;
@@ -63,7 +76,7 @@ public class GurionRockRunner {
             
             JsonObject cameras = config.getAsJsonObject("Cameras");
             JsonArray cameraConfigs = cameras.getAsJsonArray("CamerasConfigurations");
-            final String cameraDataPath = cameras.get("camera_datas_path").getAsString();
+            final String cameraDataPath = path+cameras.get("camera_datas_path").getAsString();
 
             for (int i = 0; i < cameraConfigs.size(); i++) {
                 JsonObject camera = cameraConfigs.get(i).getAsJsonObject();
@@ -73,7 +86,7 @@ public class GurionRockRunner {
             // Access LiDAR Configurations
             JsonObject lidarWorkers = config.getAsJsonObject("LiDarWorkers");
             JsonArray lidarConfigs = lidarWorkers.getAsJsonArray("LidarConfigurations");
-            final String lidarDataPath = lidarWorkers.get("lidars_data_path").getAsString();
+            final String lidarDataPath = path+lidarWorkers.get("lidars_data_path").getAsString();
 
             
 
@@ -84,7 +97,7 @@ public class GurionRockRunner {
             }
 
             // Access Other Configurations
-            poseJsonFile = config.get("poseJsonFile").getAsString();
+            poseJsonFile = path+config.get("poseJsonFile").getAsString();
             tickTime = config.get("TickTime").getAsInt();
             duration = config.get("Duration").getAsInt();
 
