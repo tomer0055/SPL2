@@ -59,6 +59,7 @@ public class GurionRockRunner {
                 {
                 path = s + path+"/" ;
                 }
+                System.out.println(path);
             }
         }
         List<Camera> camerasList = new ArrayList<>();
@@ -113,7 +114,7 @@ public class GurionRockRunner {
         StatisticalFolder folder = new StatisticalFolder();
         MessageBusImpl messageBus = MessageBusImpl.getInstance();
         List<Thread> threads = new ArrayList<>();
-        FusionSlamService fusionSlamService = new FusionSlamService(FusionSlam.getInstance(),folder);
+        FusionSlamService fusionSlamService = new FusionSlamService(FusionSlam.getInstance(),folder, path);
         threads.add(new Thread(()-> fusionSlamService.run()));
 
         for(LiDarWorkerTracker lidar: LiDarList){
