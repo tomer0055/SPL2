@@ -77,6 +77,7 @@ public class GurionRockRunner {
             JsonObject cameras = config.getAsJsonObject("Cameras");
             JsonArray cameraConfigs = cameras.getAsJsonArray("CamerasConfigurations");
             final String cameraDataPath = path+cameras.get("camera_datas_path").getAsString();
+            System.out.println(cameraDataPath);
 
             for (int i = 0; i < cameraConfigs.size(); i++) {
                 JsonObject camera = cameraConfigs.get(i).getAsJsonObject();
@@ -113,7 +114,7 @@ public class GurionRockRunner {
         StatisticalFolder folder = new StatisticalFolder();
         MessageBusImpl messageBus = MessageBusImpl.getInstance();
         List<Thread> threads = new ArrayList<>();
-        FusionSlamService fusionSlamService = new FusionSlamService(FusionSlam.getInstance(),folder);
+        FusionSlamService fusionSlamService = new FusionSlamService(FusionSlam.getInstance(),folder,path);
         threads.add(new Thread(()-> fusionSlamService.run()));
 
         for(LiDarWorkerTracker lidar: LiDarList){
