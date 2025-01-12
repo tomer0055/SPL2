@@ -46,6 +46,7 @@ public class FusionSlamService extends MicroService {
     private String error;
     private String faultySensor;
     private List<Pose> poses;
+    private String outputFolder;
 
     /**
      * Constructor for FusionSlamService.
@@ -53,13 +54,13 @@ public class FusionSlamService extends MicroService {
      * @param fusionSlam The FusionSLAM object responsible for managing the
      *                   global map.
      */
-    public FusionSlamService(FusionSlam fusionSlam, StatisticalFolder statisticalFolder) {
+    public FusionSlamService(FusionSlam fusionSlam, StatisticalFolder statisticalFolder, String outputFolder) {
         super("FusionSlamService");
         this.fusionSlam = fusionSlam;
         this.statisticalFolder = statisticalFolder;
         this.output = new LinkedHashMap<>();
         this.initialize();
-
+        this.outputFolder = outputFolder;
     }
 
     /**
@@ -163,7 +164,7 @@ public class FusionSlamService extends MicroService {
 
         output.put("statistics", statistics);
         output.put("landMarks", landmarks);
-        String outputPath = "output_file.json"; // Output file path
+        String outputPath = outputFolder+"output_file.json"; // Output file path
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(outputPath)) {
             gson.toJson(output, writer);
